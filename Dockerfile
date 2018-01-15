@@ -5,10 +5,6 @@ FROM gobuffalo/buffalo:v0.10.3 as builder
 RUN mkdir -p $GOPATH/src/github.com/wung-s/gotv
 WORKDIR $GOPATH/src/github.com/wung-s/gotv
 
-# this will cache the npm install step, unless package.json changes
-ADD package.json .
-ADD yarn.lock .
-RUN yarn install --no-progress
 ADD . .
 RUN go get $(go list ./... | grep -v /vendor/)
 RUN buffalo build --static -o /bin/app
