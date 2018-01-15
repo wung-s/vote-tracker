@@ -34,9 +34,9 @@ type MembersResource struct {
 	buffalo.Resource
 }
 
-// List gets all Members. This function is mapped to the path
+// MembersList gets all Members. This function is mapped to the path
 // GET /members
-func (v MembersResource) List(c buffalo.Context) error {
+func MembersList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -78,11 +78,6 @@ func (v MembersResource) Show(c buffalo.Context) error {
 	}
 
 	return c.Render(200, r.JSON(member))
-}
-
-// New default implementation. Returns a 404
-func (v MembersResource) New(c buffalo.Context) error {
-	return c.Error(404, errors.New("not available"))
 }
 
 // Create adds a Member to the DB. This function is mapped to the

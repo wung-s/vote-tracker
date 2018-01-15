@@ -64,6 +64,7 @@ func App() *buffalo.App {
 		app.GET("/", HomeHandler)
 
 		// app.Resource("/members", MembersResource{})
+		app.GET("/members", MembersList)
 		app.POST("/members/upload", MembersUpload)
 		// app.Resource("/roles", RolesResource{})
 		app.POST("/users", UsersCreate)
