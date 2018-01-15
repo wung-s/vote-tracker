@@ -1,0 +1,2 @@
+drop_index("members", "members_poll_id_idx")
+drop_table("members")
