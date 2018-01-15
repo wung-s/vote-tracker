@@ -19,14 +19,9 @@ import (
 // Path: Plural (/roles)
 // View Template Folder: Plural (/templates/roles/)
 
-// RolesResource is the resource for the Role model
-type RolesResource struct {
-	buffalo.Resource
-}
-
-// List gets all Roles. This function is mapped to the path
+// RolesList gets all Roles. This function is mapped to the path
 // GET /roles
-func (v RolesResource) List(c buffalo.Context) error {
+func RolesList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -50,34 +45,9 @@ func (v RolesResource) List(c buffalo.Context) error {
 	return c.Render(200, r.JSON(roles))
 }
 
-// Show gets the data for one Role. This function is mapped to
-// the path GET /roles/{role_id}
-func (v RolesResource) Show(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
-	}
-
-	// Allocate an empty Role
-	role := &models.Role{}
-
-	// To find the Role the parameter role_id is used.
-	if err := tx.Find(role, c.Param("role_id")); err != nil {
-		return c.Error(404, err)
-	}
-
-	return c.Render(200, r.JSON(role))
-}
-
-// New default implementation. Returns a 404
-func (v RolesResource) New(c buffalo.Context) error {
-	return c.Error(404, errors.New("not available"))
-}
-
-// Create adds a Role to the DB. This function is mapped to the
+// RolesCreate adds a Role to the DB. This function is mapped to the
 // path POST /roles
-func (v RolesResource) Create(c buffalo.Context) error {
+func RolesCreate(c buffalo.Context) error {
 	// Allocate an empty Role
 	role := &models.Role{}
 
@@ -104,67 +74,4 @@ func (v RolesResource) Create(c buffalo.Context) error {
 	}
 
 	return c.Render(201, r.JSON(role))
-}
-
-// Edit default implementation. Returns a 404
-func (v RolesResource) Edit(c buffalo.Context) error {
-	return c.Error(404, errors.New("not available"))
-}
-
-// Update changes a Role in the DB. This function is mapped to
-// the path PUT /roles/{role_id}
-func (v RolesResource) Update(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
-	}
-
-	// Allocate an empty Role
-	role := &models.Role{}
-
-	if err := tx.Find(role, c.Param("role_id")); err != nil {
-		return c.Error(404, err)
-	}
-
-	// Bind Role to the html form elements
-	if err := c.Bind(role); err != nil {
-		return errors.WithStack(err)
-	}
-
-	verrs, err := tx.ValidateAndUpdate(role)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	if verrs.HasAny() {
-		// Render errors as JSON
-		return c.Render(400, r.JSON(verrs))
-	}
-
-	return c.Render(200, r.JSON(role))
-}
-
-// Destroy deletes a Role from the DB. This function is mapped
-// to the path DELETE /roles/{role_id}
-func (v RolesResource) Destroy(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
-	}
-
-	// Allocate an empty Role
-	role := &models.Role{}
-
-	// To find the Role the parameter role_id is used.
-	if err := tx.Find(role, c.Param("role_id")); err != nil {
-		return c.Error(404, err)
-	}
-
-	if err := tx.Destroy(role); err != nil {
-		return errors.WithStack(err)
-	}
-
-	return c.Render(200, r.JSON(role))
 }
