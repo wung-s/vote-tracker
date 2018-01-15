@@ -1,0 +1,8 @@
+create_table("users", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("auth_id", "uuid", {})
+	t.Column("email", "string", {})
+})
+
+add_index("users", "email", {"unique": true})
+add_index("users", "auth_id", {"unique": true})
