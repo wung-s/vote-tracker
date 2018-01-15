@@ -16,6 +16,20 @@ import (
 var ENV = envy.Get("GO_ENV", "development")
 var app *buffalo.App
 
+// Auth0APIAudience identifies the server in Auth0
+var Auth0APIAudience = []string{"https://gotv.com"}
+
+const (
+	// Auth0APIIssuer is the issuer
+	Auth0APIIssuer = "https://wung.auth0.com/"
+	JwksURI        = "https://wung.auth0.com/.well-known/jwks.json"
+)
+
+// Response defines the response message structure
+type Response struct {
+	Message string `json:"message"`
+}
+
 // App is where all routes and middleware for buffalo
 // should be defined. This is the nerve center of your
 // application.
@@ -31,6 +45,9 @@ func App() *buffalo.App {
 			SSLRedirect:     ENV == "production",
 			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 		}))
+
+		app.Use(Authenticate)
+		app.Middleware.Skip(Authenticate, HomeHandler)
 
 		// Set the request content type to JSON
 		app.Use(middleware.SetContentType("application/json"))
