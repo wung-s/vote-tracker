@@ -62,6 +62,20 @@ CREATE TABLE members (
 ALTER TABLE members OWNER TO postgres;
 
 --
+-- Name: roles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE roles (
+    id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE roles OWNER TO postgres;
+
+--
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -81,10 +95,25 @@ ALTER TABLE ONLY members
 
 
 --
+-- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY roles
+    ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: members_pollid_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX members_pollid_idx ON members USING btree (pollid);
+
+
+--
+-- Name: roles_name_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX roles_name_idx ON roles USING btree (name);
 
 
 --
