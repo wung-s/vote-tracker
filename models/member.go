@@ -28,6 +28,7 @@ type Member struct {
 	Recruiter      string    `json:"recruiter" db:"recruiter"`
 	PollID         uuid.UUID `json:"poll_id" db:"poll_id"`
 	Supporter bool `json:"supporter" db:"supporter"`
+	Voted bool `json:"voted" db:"voted"`
 	RecruiterPhone string    `json:"recruiter_phone" db:"recruiter_phone"`
 }
 

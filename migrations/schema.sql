@@ -56,7 +56,8 @@ CREATE TABLE members (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     poll_id uuid NOT NULL,
-    supporter boolean DEFAULT false NOT NULL
+    supporter boolean DEFAULT false NOT NULL,
+    voted boolean DEFAULT false NOT NULL
 );
 
 
