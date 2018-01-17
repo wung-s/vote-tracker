@@ -255,9 +255,9 @@ func (v MembersResource) Edit(c buffalo.Context) error {
 	return c.Error(404, errors.New("not available"))
 }
 
-// Update changes a Member in the DB. This function is mapped to
+// MembersUpdate changes a Member in the DB. This function is mapped to
 // the path PUT /members/{member_id}
-func (v MembersResource) Update(c buffalo.Context) error {
+func MembersUpdate(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -266,8 +266,7 @@ func (v MembersResource) Update(c buffalo.Context) error {
 
 	// Allocate an empty Member
 	member := &models.Member{}
-
-	if err := tx.Find(member, c.Param("member_id")); err != nil {
+	if err := tx.Find(member, c.Param("id")); err != nil {
 		return c.Error(404, err)
 	}
 
