@@ -55,7 +55,8 @@ CREATE TABLE members (
     recruiter_phone character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    poll_id uuid NOT NULL
+    poll_id uuid NOT NULL,
+    supporter boolean DEFAULT false NOT NULL
 );
 
 

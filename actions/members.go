@@ -191,6 +191,7 @@ func MembersUpload(c buffalo.Context) error {
 			CellPhone:      line[10],
 			Recruiter:      line[11],
 			RecruiterPhone: line[13],
+			Supporter:      strings.TrimSpace(line[14]) == ("TRUE") || strings.TrimSpace(line[14]) == ("true"),
 		}
 
 		pollName := strings.TrimSpace(line[12])
