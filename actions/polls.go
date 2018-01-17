@@ -30,17 +30,34 @@ func PollsList(c buffalo.Context) error {
 
 	polls := &models.Polls{}
 
-	// Paginate results. Params "page" and "per_page" control pagination.
-	// Default values are "page=1" and "per_page=20".
-	q := tx.PaginateFromParams(c.Params())
-
 	// Retrieve all Polls from the DB
-	if err := q.All(polls); err != nil {
+	if err := tx.All(polls); err != nil {
 		return errors.WithStack(err)
 	}
 
-	// Add the paginator to the headers so clients know how to paginate.
-	c.Response().Header().Set("X-Pagination", q.Paginator.String())
+	type PollWithMembers struct {
+		Poll    models.Poll    `json:"poll"`
+		Members models.Members `json:"members"`
+	}
 
-	return c.Render(200, r.JSON(polls))
+	type PollsWithMembers []PollWithMembers
+
+	result := PollsWithMembers{}
+
+	// retrieve members of each pole
+	for _, v := range *polls {
+		members := &models.Members{}
+
+		if err := tx.Where("poll_id = ?", v.ID).All(members); err != nil {
+			return errors.WithStack(err)
+		}
+		tmp := PollWithMembers{
+			Poll:    v,
+			Members: *members,
+		}
+
+		result = append(result, tmp)
+	}
+
+	return c.Render(200, r.JSON(result))
 }
