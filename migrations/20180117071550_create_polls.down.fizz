@@ -1,0 +1,2 @@
+drop_index("polls", "polls_name_idx")
+drop_table("polls")

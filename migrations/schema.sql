@@ -52,14 +52,28 @@ CREATE TABLE members (
     home_phone character varying(255) DEFAULT ''::character varying NOT NULL,
     cell_phone character varying(255) DEFAULT ''::character varying NOT NULL,
     recruiter character varying(255) DEFAULT ''::character varying NOT NULL,
-    pollid integer NOT NULL,
     recruiter_phone character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    poll_id uuid NOT NULL
+);
+
+
+ALTER TABLE members OWNER TO postgres;
+
+--
+-- Name: polls; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE polls (
+    id uuid NOT NULL,
+    name character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
 
 
-ALTER TABLE members OWNER TO postgres;
+ALTER TABLE polls OWNER TO postgres;
 
 --
 -- Name: roles; Type: TABLE; Schema: public; Owner: postgres
@@ -123,6 +137,14 @@ ALTER TABLE ONLY members
 
 
 --
+-- Name: polls polls_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY polls
+    ADD CONSTRAINT polls_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -147,10 +169,10 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: members_pollid_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: polls_name_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX members_pollid_idx ON members USING btree (pollid);
+CREATE UNIQUE INDEX polls_name_idx ON polls USING btree (name);
 
 
 --
@@ -186,6 +208,14 @@ CREATE UNIQUE INDEX users_email_idx ON users USING btree (email);
 --
 
 CREATE UNIQUE INDEX version_idx ON schema_migration USING btree (version);
+
+
+--
+-- Name: members members_poll_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY members
+    ADD CONSTRAINT members_poll_id_fkey FOREIGN KEY (poll_id) REFERENCES polls(id);
 
 
 --

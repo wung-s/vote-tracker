@@ -8,7 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
+	"strings"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
@@ -165,7 +165,17 @@ func MembersUpload(c buffalo.Context) error {
 			log.Fatal(error)
 		}
 
-		pollID, _ := strconv.Atoi(line[12])
+		atEnd := true
+		for _, v := range line {
+			if strings.TrimSpace(v) != "" {
+				atEnd = false
+			}
+		}
+
+		// Exit the loop if the values in a row are all blank
+		if atEnd {
+			break
+		}
 
 		member := &models.Member{
 			VoterID:        line[0],
@@ -180,8 +190,24 @@ func MembersUpload(c buffalo.Context) error {
 			HomePhone:      line[9],
 			CellPhone:      line[10],
 			Recruiter:      line[11],
-			PollID:         pollID,
 			RecruiterPhone: line[13],
+		}
+
+		pollName := strings.TrimSpace(line[12])
+		exist, err := tx.Where("name = ?", pollName).Exists("polls")
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		poll := &models.Poll{}
+		if !exist {
+			poll.Name = pollName
+			if i != 0 {
+				insertPoll(poll, tx)
+				setPollID(pollName, member, tx)
+			}
+
+		} else {
+			setPollID(pollName, member, tx)
 		}
 
 		if i != 0 {
@@ -195,10 +221,29 @@ func MembersUpload(c buffalo.Context) error {
 	return c.Render(201, r.JSON("data processing complete"))
 }
 
+func setPollID(pollName string, member *models.Member, tx *pop.Connection) {
+	polls := []models.Poll{}
+	err := tx.Where("name = ?", pollName).All(&polls)
+	if err != nil {
+		fmt.Print(err)
+	} else {
+		member.PollID = polls[0].ID
+	}
+}
+
+func insertPoll(poll *models.Poll, tx *pop.Connection) {
+	verrs, err := tx.ValidateAndSave(poll)
+	poll.ID = uuid.UUID{}
+	if err != nil {
+		fmt.Print(verrs)
+	}
+}
+
 // insertMember creates new member row in the DB
 func insertMember(member *models.Member, tx *pop.Connection) {
 	verrs, err := tx.ValidateAndSave(member)
 	member.ID = uuid.UUID{}
+
 	if err != nil {
 		fmt.Print(verrs)
 	}

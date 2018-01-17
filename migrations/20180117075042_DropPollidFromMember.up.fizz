@@ -1,0 +1,1 @@
+raw("ALTER TABLE members DROP COLUMN pollid;")

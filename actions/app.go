@@ -70,6 +70,8 @@ func App() *buffalo.App {
 		app.POST("/users", UsersCreate)
 		app.GET("/roles", RolesList)
 		// app.Resource("/users", UsersResource{})
+		// app.Resource("/polls", PollsResource{})
+		app.GET("/polls", PollsList)
 	}
 
 	return app

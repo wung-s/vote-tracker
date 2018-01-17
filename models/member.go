@@ -26,7 +26,7 @@ type Member struct {
 	HomePhone      string    `json:"home_phone" db:"home_phone"`
 	CellPhone      string    `json:"cell_phone" db:"cell_phone"`
 	Recruiter      string    `json:"recruiter" db:"recruiter"`
-	PollID         int       `json:"poll_id" db:"pollid"`
+	PollID         uuid.UUID `json:"poll_id" db:"poll_id"`
 	RecruiterPhone string    `json:"recruiter_phone" db:"recruiter_phone"`
 }
 
