@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/buffalo/middleware"
 	"github.com/gobuffalo/buffalo/middleware/ssl"
 	"github.com/gobuffalo/envy"
+	"github.com/rs/cors"
 	"github.com/unrolled/secure"
 
 	"github.com/gobuffalo/x/sessions"
@@ -35,10 +36,14 @@ type Response struct {
 // application.
 func App() *buffalo.App {
 	if app == nil {
+
+		c := cors.AllowAll()
+
 		app = buffalo.New(buffalo.Options{
 			Env:          ENV,
 			SessionStore: sessions.Null{},
 			SessionName:  "_gotv_session",
+			PreWares:     []buffalo.PreWare{c.Handler},
 		})
 		// Automatically redirect to SSL
 		app.Use(ssl.ForceSSL(secure.Options{
