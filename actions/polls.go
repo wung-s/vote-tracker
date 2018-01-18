@@ -35,9 +35,15 @@ func PollsList(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
+	type PollMemberStats struct {
+		Total     int `json:"total"`
+		Voted     int `json:"voted"`
+		Supporter int `json:"supporter"`
+	}
+
 	type PollWithMembers struct {
-		Poll    models.Poll    `json:"poll"`
-		Members models.Members `json:"members"`
+		models.Poll
+		MemberStatistic PollMemberStats `json:"memberStatistic"`
 	}
 
 	type PollsWithMembers []PollWithMembers
@@ -45,16 +51,30 @@ func PollsList(c buffalo.Context) error {
 	result := PollsWithMembers{}
 
 	// retrieve members of each pole
-	for _, v := range *polls {
+	for _, p := range *polls {
 		members := &models.Members{}
+		s := PollMemberStats{}
+		q := tx.BelongsTo(&p)
 
-		if err := tx.Where("poll_id = ?", v.ID).All(members); err != nil {
+		// get total members in the poll
+		cnt, err := q.Count(members)
+		if err != nil {
 			return errors.WithStack(err)
 		}
-		tmp := PollWithMembers{
-			Poll:    v,
-			Members: *members,
+		s.Total = cnt
+
+		// get total voted members in the poll
+		cnt, err = q.Where("voted = ?", true).Count(members)
+		if err != nil {
+			return errors.WithStack(err)
 		}
+		s.Voted = cnt
+
+		if err := q.All(members); err != nil {
+			return errors.WithStack(err)
+		}
+
+		tmp := PollWithMembers{p,s}
 
 		result = append(result, tmp)
 	}
