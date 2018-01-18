@@ -1,6 +1,12 @@
 package actions
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
@@ -46,6 +52,10 @@ func UsersShow(c buffalo.Context) error {
 	return c.Render(200, r.JSON(user))
 }
 
+type auth0Succ struct {
+	Auth0ID string `json:"user_id"`
+}
+
 // UsersCreate adds a User to the DB. This function is mapped to the
 // path POST /users
 func UsersCreate(c buffalo.Context) error {
@@ -53,13 +63,11 @@ func UsersCreate(c buffalo.Context) error {
 	user := &models.User{}
 	userRole := &models.UserRole{}
 	userParams := &UserParams{}
+
 	// Bind user to the html form elements
 	if err := c.Bind(userParams); err != nil {
 		return errors.WithStack(err)
 	}
-
-	user.AuthID = userParams.AuthID
-	user.Email = userParams.Email
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -75,6 +83,18 @@ func UsersCreate(c buffalo.Context) error {
 	if !exist {
 		return c.Render(500, r.JSON("Role not found"))
 	}
+
+	user.Email = userParams.Email
+
+	token := getAuth0Token()
+
+	auth0User, err := createAuth0User(token, user.Email)
+	if err != nil {
+		fmt.Println(err)
+		return errors.WithStack(err)
+	}
+
+	user.AuthID = auth0User.Auth0ID
 
 	// Validate the data from the html form
 	verrs, err := tx.ValidateAndCreate(user)
@@ -100,6 +120,66 @@ func UsersCreate(c buffalo.Context) error {
 	}
 
 	return c.Render(201, r.JSON(user))
+}
+
+func createAuth0User(token string, email string) (auth0Succ, error) {
+	url := "https://wung.auth0.com/api/v2/users"
+	payload := strings.NewReader(`{"connection":"Username-Password-Authentication","email":"` + email + `","password": "ffffff","email_verified": true}`)
+	req, _ := http.NewRequest("POST", url, payload)
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("Authorization", "Bearer "+token)
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+
+	type auth0Res struct {
+		StatusCode int    `json:"statusCode"`
+		Message    string `json:"message"`
+	}
+
+	r := auth0Res{}
+	if err := json.Unmarshal([]byte(string(body)), &r); err != nil {
+		fmt.Println(err)
+	}
+
+	if r.StatusCode != 0 {
+		return auth0Succ{}, errors.New(r.Message)
+	}
+
+	as := auth0Succ{}
+	if err := json.Unmarshal([]byte(string(body)), &as); err != nil {
+		fmt.Println(err)
+	}
+	return as, nil
+}
+
+func getAuth0Token() string {
+	url := "https://wung.auth0.com/oauth/token"
+
+	payload := strings.NewReader("{\"grant_type\":\"client_credentials\",\"client_id\": \"63WJajY4AcAWcj4fJWQEHB3KdKM5co4q\",\"client_secret\": \"Hl5BDf_Xy7PDWpfYLgs1pdg4MGuklH2Efq2Z6TcT03RRhT5TUKRF3iHHib9vNbCQ\",\"audience\": \"https://wung.auth0.com/api/v2/\"}")
+
+	req, _ := http.NewRequest("POST", url, payload)
+
+	req.Header.Add("content-type", "application/json")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+
+	type auth0Res struct {
+		AccessToken string `json:"access_token"`
+		Scope       string `json:"scope"`
+	}
+
+	ar := auth0Res{}
+	if err := json.Unmarshal([]byte(string(body)), &ar); err != nil {
+		fmt.Println(err)
+	}
+
+	return string(ar.AccessToken)
 }
 
 // UsersUpdate changes a User in the DB. This function is mapped to

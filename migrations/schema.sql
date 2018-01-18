@@ -121,10 +121,10 @@ ALTER TABLE user_roles OWNER TO postgres;
 
 CREATE TABLE users (
     id uuid NOT NULL,
-    auth_id uuid NOT NULL,
     email character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    auth_id character varying(255) NOT NULL
 );
 
 
@@ -189,13 +189,6 @@ CREATE INDEX roles_name_idx ON roles USING btree (name);
 --
 
 CREATE UNIQUE INDEX user_roles_user_id_role_id_idx ON user_roles USING btree (user_id, role_id);
-
-
---
--- Name: users_auth_id_idx; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE UNIQUE INDEX users_auth_id_idx ON users USING btree (auth_id);
 
 
 --

@@ -14,7 +14,7 @@ type User struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
-	AuthID    uuid.UUID `json:"authId" db:"auth_id"`
+	AuthID    string    `json:"authId" db:"auth_id"`
 	Email     string    `json:"email" db:"email"`
 }
 
@@ -38,15 +38,7 @@ func (u Users) String() string {
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: u.Email, Name: "Email"},
-		&validators.FuncValidator{
-			Field:   u.AuthID.String(),
-			Name:    "AuthID",
-			Message: "AuthID is required",
-			Fn: func() bool {
-				var Nil = uuid.UUID{}
-				return !uuid.Equal(Nil, u.AuthID)
-			},
-		},
+		&validators.StringIsPresent{Field: u.AuthID, Name: "AuthID"},
 	), nil
 }
 

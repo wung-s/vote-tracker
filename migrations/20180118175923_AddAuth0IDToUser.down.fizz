@@ -1,0 +1,2 @@
+drop_column("users", "auth_id")
+add_column("users", "auth_id", "uuid", {})
