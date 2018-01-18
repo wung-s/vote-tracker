@@ -12,24 +12,24 @@ import (
 
 type Member struct {
 	ID             uuid.UUID `json:"id" db:"id"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
-	FirstName      string    `json:"first_name" db:"first_name"`
-	LastName       string    `json:"last_name" db:"last_name"`
-	VoterID        string    `json:"voter_id" db:"voter_id"`
-	UnitNumber     string    `json:"unit_number" db:"unit_number"`
-	StreetNumber   string    `json:"street_number" db:"street_number"`
-	StreetName     string    `json:"street_name" db:"street_name"`
+	CreatedAt      time.Time `json:"createdAt" db:"created_at"`
+	UpdatedAt      time.Time `json:"updatedAt" db:"updated_at"`
+	FirstName      string    `json:"firstName" db:"first_name"`
+	LastName       string    `json:"lastName" db:"last_name"`
+	VoterID        string    `json:"voterNd" db:"voter_id"`
+	UnitNumber     string    `json:"unitNumber" db:"unit_number"`
+	StreetNumber   string    `json:"streetNumber" db:"street_number"`
+	StreetName     string    `json:"streetName" db:"street_name"`
 	City           string    `json:"city" db:"city"`
 	State          string    `json:"state" db:"state"`
-	PostalCode     string    `json:"postal_code" db:"postal_code"`
-	HomePhone      string    `json:"home_phone" db:"home_phone"`
-	CellPhone      string    `json:"cell_phone" db:"cell_phone"`
+	PostalCode     string    `json:"postalCode" db:"postal_code"`
+	HomePhone      string    `json:"homePhone" db:"home_phone"`
+	CellPhone      string    `json:"cellPhone" db:"cell_phone"`
 	Recruiter      string    `json:"recruiter" db:"recruiter"`
-	PollID         uuid.UUID `json:"poll_id" db:"poll_id"`
+	PollID         uuid.UUID `json:"pollId" db:"poll_id"`
 	Supporter      bool      `json:"supporter" db:"supporter"`
 	Voted          bool      `json:"voted" db:"voted"`
-	RecruiterPhone string    `json:"recruiter_phone" db:"recruiter_phone"`
+	RecruiterPhone string    `json:"recruiterPhone" db:"recruiter_phone"`
 }
 
 // String is not required by pop and may be deleted
