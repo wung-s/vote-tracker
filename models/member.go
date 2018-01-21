@@ -16,7 +16,7 @@ type Member struct {
 	UpdatedAt      time.Time `json:"updatedAt" db:"updated_at"`
 	FirstName      string    `json:"firstName" db:"first_name"`
 	LastName       string    `json:"lastName" db:"last_name"`
-	VoterID        string    `json:"voterNd" db:"voter_id"`
+	VoterID        string    `json:"voterId" db:"voter_id"`
 	UnitNumber     string    `json:"unitNumber" db:"unit_number"`
 	StreetNumber   string    `json:"streetNumber" db:"street_number"`
 	StreetName     string    `json:"streetName" db:"street_name"`

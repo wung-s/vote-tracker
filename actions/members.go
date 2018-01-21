@@ -315,3 +315,68 @@ func (v MembersResource) Destroy(c buffalo.Context) error {
 
 	return c.Render(200, r.JSON(member))
 }
+
+// MembersSearch performs search applying filters from the values in the query parameters
+func MembersSearch(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Member
+	// member := &models.Member{}
+	members := &models.Members{}
+
+	// if c.Param("address") != "" {
+	// 	sql := "SELECT * FROM (SELECT *, concat(unit_number::text, street_number::text, street_name::text) AS address FROM public.members) AS temp where temp.address LIKE '%$1%'"
+	// 	// sql = sql + ";"
+	// 	// args := []string{c.Param("address")}
+	// 	fmt.Println("Execute RAW query >>>>>>>>>>>>>>>>>")
+
+	// 	if err := tx.RawQuery(sql, "Jack").All(members); err != nil {
+	// 		fmt.Println("Error in query:", err)
+	// 	}
+	// 	fmt.Println("query result is:", members)
+	// }
+
+	// Paginate results. Params "page" and "per_page" control pagination.
+	// Default values are "page=1" and "per_page=20".
+	q := tx.PaginateFromParams(c.Params())
+
+	if c.Param("poll_id") != "" {
+		q = q.Where("poll_id = ?", c.Param("poll_id"))
+	}
+
+	if c.Param("voted") != "" {
+		q = q.Where("voted = ?", c.Param("voted"))
+	}
+
+	if c.Param("voter_id") != "" {
+		q = q.Where("voter_id = ?", c.Param("voter_id"))
+	}
+
+	if err := q.All(members); err != nil {
+		return c.Error(404, err)
+	}
+
+	result := struct {
+		models.Members     `json:"members"`
+		Page               int `json:"page"`
+		PerPage            int `json:"perPage"`
+		Offset             int `json:"offset"`
+		TotalEntriesSize   int `json:"totalEntriesSize"`
+		CurrentEntriesSize int `json:"currentEntriesSize"`
+		TotalPages         int `json:"totalPages"`
+	}{
+		*members,
+		q.Paginator.Page,
+		q.Paginator.PerPage,
+		q.Paginator.Offset,
+		q.Paginator.TotalEntriesSize,
+		q.Paginator.CurrentEntriesSize,
+		q.Paginator.TotalPages,
+	}
+
+	return c.Render(200, r.JSON(result))
+}
