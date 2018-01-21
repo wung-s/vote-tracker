@@ -52,6 +52,11 @@ func UsersShow(c buffalo.Context) error {
 	return c.Render(200, r.JSON(user))
 }
 
+// UsersCurrent will return the authenticated user's information
+func UsersCurrent(c buffalo.Context) error {
+	return c.Render(200, r.JSON(c.Value("currentUser")))
+}
+
 type auth0Succ struct {
 	Auth0ID string `json:"user_id"`
 }

@@ -7,9 +7,56 @@ import (
 
 	auth0 "github.com/auth0-community/go-auth0"
 	"github.com/gobuffalo/buffalo"
+	"github.com/markbates/pop"
+	"github.com/pkg/errors"
+	"github.com/wung-s/gotv/models"
 	jose "gopkg.in/square/go-jose.v2"
 )
 
+// CurrentUserSetter sets current user info and roles in the context
+func CurrentUserSetter(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		uid := c.Request().Header.Get("Uid")
+		tx := c.Value("tx").(*pop.Connection)
+
+		user := &models.User{}
+		err := tx.Where("auth_id = ?", uid).First(user)
+
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		roles := &models.Roles{}
+		sql := "SELECT roles.* FROM user_roles INNER JOIN roles ON user_roles.role_id = roles.id WHERE user_roles.user_id = ?"
+		q := tx.RawQuery(sql, user.ID)
+		err = q.All(roles)
+
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		roleNames := []string{}
+		// obtain only the name of the roles
+		for _, v := range *roles {
+			roleNames = append(roleNames, v.Name)
+		}
+
+		currentUser := struct {
+			models.User
+			Roles []string `json:"roles"`
+		}{
+			*user,
+			roleNames,
+		}
+
+		c.Set("currentUser", currentUser)
+
+		err = next(c)
+		return err
+	}
+}
+
+// Authenticate will ensure only authenticated users gain access to protected endpoints
 func Authenticate(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		// do some work before calling the next handler

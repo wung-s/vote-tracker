@@ -68,6 +68,9 @@ func App() *buffalo.App {
 		// Remove to disable this.
 		app.Use(middleware.PopTransaction(models.DB))
 
+		app.Use(CurrentUserSetter)
+		app.Middleware.Skip(CurrentUserSetter, HomeHandler)
+
 		app.GET("/", HomeHandler)
 
 		// app.Resource("/members", MembersResource{})
@@ -77,6 +80,7 @@ func App() *buffalo.App {
 		app.GET("/members/search", MembersSearch)
 		// app.Resource("/roles", RolesResource{})
 		app.POST("/users", UsersCreate)
+		app.GET("/users/current", UsersCurrent)
 		app.GET("/roles", RolesList)
 		// app.Resource("/users", UsersResource{})
 		// app.Resource("/polls", PollsResource{})
