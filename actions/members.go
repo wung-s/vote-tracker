@@ -117,7 +117,7 @@ func MembersUpload(c buffalo.Context) error {
 	// Allocate an empty Member
 
 	type UploadParams struct {
-		SeedFile string `db:"-"`
+		File string `db:"-"`
 	}
 
 	postParams := &UploadParams{}
@@ -127,8 +127,12 @@ func MembersUpload(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
+	if postParams.File == "" {
+		return errors.Errorf("No file found")
+	}
+
 	// Decode the Base64 string
-	dec, err := base64.StdEncoding.DecodeString(postParams.SeedFile)
+	dec, err := base64.StdEncoding.DecodeString(strings.Replace(postParams.File, `data:text/csv;base64,`, "", 1))
 	if err != nil {
 		panic(err)
 	}
