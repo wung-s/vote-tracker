@@ -14,6 +14,7 @@ import (
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
+	"github.com/sfreiberg/gotwilio"
 	"github.com/wung-s/gotv/models"
 )
 
@@ -274,6 +275,8 @@ func MembersUpdate(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
+	preUpdateVoted := member.Voted
+
 	// Bind Member to the html form elements
 	if err := c.Bind(member); err != nil {
 		return errors.WithStack(err)
@@ -289,7 +292,24 @@ func MembersUpdate(c buffalo.Context) error {
 		return c.Render(400, r.JSON(verrs))
 	}
 
+	postUpdateVoted := member.Voted
+	if preUpdateVoted == false && postUpdateVoted == true && member.RecruiterPhone != "" {
+		sendSms(
+			"+1"+member.RecruiterPhone,
+			TwilioNumber,
+			member.FirstName+" "+member.LastName+" just voted",
+		)
+	}
+
 	return c.Render(200, r.JSON(member))
+}
+
+func sendSms(to string, from string, message string) {
+	twilio := gotwilio.NewTwilioClient(TwilioAccountSid, TwilioAuthToken)
+
+	if _, _, err := twilio.SendSMS(from, to, message, "", ""); err != nil {
+		fmt.Print(err)
+	}
 }
 
 // Destroy deletes a Member from the DB. This function is mapped
