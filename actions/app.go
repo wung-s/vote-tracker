@@ -78,13 +78,14 @@ func App() *buffalo.App {
 		app.PUT("/members/{id}", MembersUpdate)
 		app.POST("/members/upload", MembersUpload)
 		app.GET("/members/search", MembersSearch)
-		// app.Resource("/roles", RolesResource{})
+
 		app.POST("/users", UsersCreate)
 		app.GET("/users", UsersList)
+		app.PUT("/users/{id}", UsersUpdate)
 		app.GET("/users/current", UsersCurrent)
+
 		app.GET("/roles", RolesList)
-		// app.Resource("/users", UsersResource{})
-		// app.Resource("/polls", PollsResource{})
+
 		app.GET("/polls", PollsList)
 	}
 

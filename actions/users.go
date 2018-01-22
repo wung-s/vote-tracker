@@ -270,17 +270,40 @@ func UsersUpdate(c buffalo.Context) error {
 
 	// Allocate an empty User
 	user := &models.User{}
+	userParams := &UserParams{}
 
-	if err := tx.Find(user, c.Param("user_id")); err != nil {
+	if err := tx.Find(user, c.Param("id")); err != nil {
 		return c.Error(404, err)
 	}
 
 	// Bind User to the html form elements
-	if err := c.Bind(user); err != nil {
+	if err := c.Bind(userParams); err != nil {
 		return errors.WithStack(err)
 	}
 
-	verrs, err := tx.ValidateAndUpdate(user)
+	if !uuid.Equal(userParams.RoleID, uuid.UUID{}) {
+		exist, err := tx.Where("id = ?", userParams.RoleID).Exists("roles")
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		if !exist {
+			return c.Render(500, r.JSON("Role not found"))
+		}
+	}
+
+	// Delete all existing roles
+	sql := "DELETE FROM user_roles as user_roles WHERE user_roles.user_id = ?"
+	err := tx.RawQuery(sql, user.ID).Exec()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	userRole := &models.UserRole{}
+	userRole.UserID = user.ID
+	userRole.RoleID = userParams.RoleID
+
+	verrs, err := tx.ValidateAndCreate(userRole)
 	if err != nil {
 		return errors.WithStack(err)
 	}
