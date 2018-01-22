@@ -68,9 +68,9 @@ func RecruitersList(c buffalo.Context) error {
 	return c.Render(200, r.JSON(result))
 }
 
-// Show gets the data for one Recruiter. This function is mapped to
+// RecruitersShow gets the data for one Recruiter. This function is mapped to
 // the path GET /recruiters/{recruiter_id}
-func (v RecruitersResource) Show(c buffalo.Context) error {
+func RecruitersShow(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -79,13 +79,43 @@ func (v RecruitersResource) Show(c buffalo.Context) error {
 
 	// Allocate an empty Recruiter
 	recruiter := &models.Recruiter{}
-
 	// To find the Recruiter the parameter recruiter_id is used.
-	if err := tx.Find(recruiter, c.Param("recruiter_id")); err != nil {
+	if err := tx.Find(recruiter, c.Param("id")); err != nil {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.JSON(recruiter))
+	type MemberStats struct {
+		Total     int `json:"total"`
+		Voted     int `json:"voted"`
+		Supporter int `json:"supporter"`
+	}
+
+	votedCnt, err := tx.BelongsTo(recruiter).Where("voted = ?", true).Count("members")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	supporterCnt, err := tx.BelongsTo(recruiter).Where("supporter = ?", true).Count("members")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	totalCnt, err := tx.BelongsTo(recruiter).Count("members")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	s := MemberStats{totalCnt, votedCnt, supporterCnt}
+
+	result := struct {
+		models.Recruiter
+		MemberStatistic MemberStats `json:"memberStatistic"`
+	}{
+		*recruiter,
+		s,
+	}
+
+	return c.Render(200, r.JSON(result))
 }
 
 // New default implementation. Returns a 404
