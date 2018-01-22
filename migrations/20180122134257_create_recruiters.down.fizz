@@ -1,0 +1,2 @@
+drop_index("recruiters", "recruiters_phone_no_idx")
+drop_table("recruiters")

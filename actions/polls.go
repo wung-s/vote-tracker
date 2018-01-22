@@ -74,7 +74,7 @@ func PollsList(c buffalo.Context) error {
 			return errors.WithStack(err)
 		}
 
-		tmp := PollWithMembers{p,s}
+		tmp := PollWithMembers{p, s}
 
 		result = append(result, tmp)
 	}

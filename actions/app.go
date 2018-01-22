@@ -87,6 +87,8 @@ func App() *buffalo.App {
 		app.GET("/roles", RolesList)
 
 		app.GET("/polls", PollsList)
+		app.GET("/recruiters", RecruitersList)
+		app.PUT("/recruiters/{id}", RecruitersUpdate)
 	}
 
 	return app

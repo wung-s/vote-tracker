@@ -200,7 +200,7 @@ func MembersUpload(c buffalo.Context) error {
 		}
 
 		pollName := strings.TrimSpace(line[12])
-		exist, err := tx.Where("name = ?", pollName).Exists("polls")
+		exist, err := tx.Where("name = ?", pollName).Exists(&models.Poll{})
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -214,6 +214,25 @@ func MembersUpload(c buffalo.Context) error {
 
 		} else {
 			setPollID(pollName, member, tx)
+		}
+
+		rPhone := strings.TrimSpace(line[13])
+		rName := strings.TrimSpace(line[11])
+		exist, err = tx.Where("phone_no = ?", rPhone).Exists("recruiters")
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		r := &models.Recruiter{}
+		if !exist {
+			r.PhoneNo = rPhone
+			r.Name = rName
+			if i != 0 {
+				insertRecruiter(r, tx)
+				setRecruiterID(rPhone, member, tx)
+			}
+
+		} else {
+			setRecruiterID(rPhone, member, tx)
 		}
 
 		if i != 0 {
@@ -237,9 +256,27 @@ func setPollID(pollName string, member *models.Member, tx *pop.Connection) {
 	}
 }
 
+func setRecruiterID(p string, member *models.Member, tx *pop.Connection) {
+	rs := []models.Recruiter{}
+	err := tx.Where("phone_no = ?", p).All(&rs)
+	if err != nil {
+		fmt.Print(err)
+	} else {
+		member.RecruiterID = rs[0].ID
+	}
+}
+
 func insertPoll(poll *models.Poll, tx *pop.Connection) {
 	verrs, err := tx.ValidateAndSave(poll)
 	poll.ID = uuid.UUID{}
+	if err != nil {
+		fmt.Print(verrs)
+	}
+}
+
+func insertRecruiter(r *models.Recruiter, tx *pop.Connection) {
+	verrs, err := tx.ValidateAndSave(r)
+	r.ID = uuid.UUID{}
 	if err != nil {
 		fmt.Print(verrs)
 	}
@@ -374,6 +411,10 @@ func MembersSearch(c buffalo.Context) error {
 
 	if c.Param("voter_id") != "" {
 		q = q.Where("voter_id = ?", c.Param("voter_id"))
+	}
+
+	if c.Param("recruiter_id") != "" {
+		q = q.Where("recruiter_id = ?", c.Param("recruiter_id"))
 	}
 
 	if err := q.All(members); err != nil {
