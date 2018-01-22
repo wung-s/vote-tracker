@@ -80,6 +80,7 @@ func App() *buffalo.App {
 		app.GET("/members/search", MembersSearch)
 		// app.Resource("/roles", RolesResource{})
 		app.POST("/users", UsersCreate)
+		app.GET("/users", UsersList)
 		app.GET("/users/current", UsersCurrent)
 		app.GET("/roles", RolesList)
 		// app.Resource("/users", UsersResource{})

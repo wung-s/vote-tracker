@@ -61,6 +61,78 @@ type auth0Succ struct {
 	Auth0ID string `json:"user_id"`
 }
 
+// UsersList gets the data for all User. This function is mapped to
+// the path GET /users
+func UsersList(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	users := &models.Users{}
+
+	q := tx.PaginateFromParams(c.Params())
+
+	// Retrieve all Users from the DB
+	if err := q.All(users); err != nil {
+		return errors.WithStack(err)
+	}
+
+	type UserWithRoles struct {
+		models.User
+		Roles []string `json:"roles"`
+	}
+
+	type UsersWithRoles []UserWithRoles
+
+	uwr := UsersWithRoles{}
+
+	for _, u := range *users {
+		roles := &models.Roles{}
+		sql := "SELECT roles.* FROM user_roles INNER JOIN roles ON user_roles.role_id = roles.id WHERE user_roles.user_id = ?"
+		q := tx.RawQuery(sql, u.ID)
+		err := q.All(roles)
+
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		roleNames := []string{}
+		// obtain only the name of the roles
+		for _, v := range *roles {
+			roleNames = append(roleNames, v.Name)
+		}
+
+		tmp := UserWithRoles{
+			u,
+			roleNames,
+		}
+
+		uwr = append(uwr, tmp)
+	}
+
+	result := struct {
+		UsersWithRoles     `json:"users"`
+		Page               int `json:"page"`
+		PerPage            int `json:"perPage"`
+		Offset             int `json:"offset"`
+		TotalEntriesSize   int `json:"totalEntriesSize"`
+		CurrentEntriesSize int `json:"currentEntriesSize"`
+		TotalPages         int `json:"totalPages"`
+	}{
+		uwr,
+		q.Paginator.Page,
+		q.Paginator.PerPage,
+		q.Paginator.Offset,
+		q.Paginator.TotalEntriesSize,
+		q.Paginator.CurrentEntriesSize,
+		q.Paginator.TotalPages,
+	}
+
+	return c.Render(200, r.JSON(result))
+}
+
 // UsersCreate adds a User to the DB. This function is mapped to the
 // path POST /users
 func UsersCreate(c buffalo.Context) error {
