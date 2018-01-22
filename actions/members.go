@@ -441,3 +441,49 @@ func MembersSearch(c buffalo.Context) error {
 
 	return c.Render(200, r.JSON(result))
 }
+
+// RecruitersMembersSearch performs search applying filters from the values in the query parameters
+func RecruitersMembersSearch(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	members := &models.Members{}
+	// Paginate results. Params "page" and "per_page" control pagination.
+	// Default values are "page=1" and "per_page=20".
+	q := tx.PaginateFromParams(c.Params()).Where("recruiter_id = ?", c.Param("id"))
+
+	if c.Param("voted") != "" {
+		q = q.Where("voted = ?", c.Param("voted"))
+	}
+
+	if c.Param("voter_id") != "" {
+		q = q.Where("voter_id = ?", c.Param("voter_id"))
+	}
+
+	if err := q.All(members); err != nil {
+		return c.Error(404, err)
+	}
+
+	result := struct {
+		models.Members     `json:"members"`
+		Page               int `json:"page"`
+		PerPage            int `json:"perPage"`
+		Offset             int `json:"offset"`
+		TotalEntriesSize   int `json:"totalEntriesSize"`
+		CurrentEntriesSize int `json:"currentEntriesSize"`
+		TotalPages         int `json:"totalPages"`
+	}{
+		*members,
+		q.Paginator.Page,
+		q.Paginator.PerPage,
+		q.Paginator.Offset,
+		q.Paginator.TotalEntriesSize,
+		q.Paginator.CurrentEntriesSize,
+		q.Paginator.TotalPages,
+	}
+
+	return c.Render(200, r.JSON(result))
+}
