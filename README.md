@@ -15,6 +15,22 @@ changes to `grifts/db.go` before running the seed command
 
     $ buffalo task db:seed
 
+## Set Application Service Keys
+
+The keys for services like Auth0 & Twilio can be set in the `.env` file found in the root of the
+project
+
+```
+//example content of .env
+
+TWILIO_AC_SID=AC23a19xxxxxxxxxxb60783eccfa4c2
+TWILIO_AUTH_TOKEN=f57fbe7303e5dxxxxxxx4eafbf6796
+TWILIO_NO=+0123456789
+AUTH0_API_AUDIENCE_VAL1=https://dev.rallychq.com
+AUTH0_API_ISSUER=https://gotv.auth0.com/
+JWKS_URI=https://gotv.auth0.com/.well-known/jwks.json
+```
+
 ## Starting the Application
 
     $ PORT=4000 buffalo dev

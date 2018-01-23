@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	auth0 "github.com/auth0-community/go-auth0"
 	"github.com/gobuffalo/buffalo"
@@ -73,10 +74,11 @@ func Authenticate(next buffalo.Handler) buffalo.Handler {
 }
 
 func checkJwt(w http.ResponseWriter, r *http.Request) error {
-	client := auth0.NewJWKClient(auth0.JWKClientOptions{URI: JwksURI})
-	audience := Auth0APIAudience
+	client := auth0.NewJWKClient(auth0.JWKClientOptions{URI: os.Getenv("JWKS_URI")})
+	// audience identifies the server in Auth0
+	audience := []string{os.Getenv("AUTH0_API_AUDIENCE_VAL1")}
 
-	configuration := auth0.NewConfiguration(client, audience, Auth0APIIssuer, jose.RS256)
+	configuration := auth0.NewConfiguration(client, audience, os.Getenv("AUTH0_API_ISSUER"), jose.RS256)
 	validator := auth0.NewValidator(configuration)
 
 	token, err := validator.ValidateRequest(r)

@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"os"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
@@ -230,8 +232,9 @@ func RecruitersInvite(c buffalo.Context) error {
 	}
 
 	SendSms(
-		"+1"+recruiter.PhoneNo,
-		TwilioNumber,
+		// "+1"+recruiter.PhoneNo,
+		"+918951094299",
+		os.Getenv("TWILIO_NO"),
 		"Hello "+recruiter.Name+", you've been invited. Please click on "+iParams.URL+"/"+recruiter.ID.String(),
 	)
 
@@ -274,7 +277,7 @@ func RecruitersInviteAll(c buffalo.Context) error {
 	for _, r := range *recruiters {
 		SendSms(
 			"+1"+r.PhoneNo,
-			TwilioNumber,
+			os.Getenv("TWILIO_NO"),
 			"Hello "+r.Name+", you've been invited. Please click on "+iParams.URL+"/"+r.ID.String(),
 		)
 

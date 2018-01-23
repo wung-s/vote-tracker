@@ -16,18 +16,6 @@ import (
 var ENV = envy.Get("GO_ENV", "development")
 var app *buffalo.App
 
-// Auth0APIAudience identifies the server in Auth0
-var Auth0APIAudience = []string{"https://gotv.com"}
-var TwilioAccountSid = "AC23a198769cd7d761edb60783eccfa4c2"
-var TwilioAuthToken = "f57fbe7303e5d9436e36dc4eafbf6796"
-var TwilioNumber = "+15139121062"
-
-const (
-	// Auth0APIIssuer is the issuer
-	Auth0APIIssuer = "https://wung.auth0.com/"
-	JwksURI        = "https://wung.auth0.com/.well-known/jwks.json"
-)
-
 // Response defines the response message structure
 type Response struct {
 	Message string `json:"message"`
@@ -38,6 +26,9 @@ type Response struct {
 // application.
 func App() *buffalo.App {
 	if app == nil {
+		if ENV == "development" {
+			envy.Load()
+		}
 
 		c := cors.AllowAll()
 

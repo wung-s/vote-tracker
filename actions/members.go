@@ -333,7 +333,7 @@ func MembersUpdate(c buffalo.Context) error {
 	if preUpdateVoted == false && postUpdateVoted == true && member.RecruiterPhone != "" {
 		SendSms(
 			"+1"+member.RecruiterPhone,
-			TwilioNumber,
+			os.Getenv("TWILIO_NO"),
 			member.FirstName+" "+member.LastName+" just voted",
 		)
 	}
@@ -343,8 +343,7 @@ func MembersUpdate(c buffalo.Context) error {
 
 // SendSms sends out sms
 func SendSms(to string, from string, message string) {
-	twilio := gotwilio.NewTwilioClient(TwilioAccountSid, TwilioAuthToken)
-
+	twilio := gotwilio.NewTwilioClient(os.Getenv("TWILIO_AC_SID"), os.Getenv("TWILIO_AUTH_TOKEN"))
 	if _, _, err := twilio.SendSMS(from, to, message, "", ""); err != nil {
 		fmt.Print(err)
 	}
