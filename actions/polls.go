@@ -19,6 +19,20 @@ import (
 // Path: Plural (/polls)
 // View Template Folder: Plural (/templates/polls/)
 
+type PollMemberStats struct {
+	Total          int `json:"total"`
+	Voted          int `json:"voted"`
+	Supporter      int `json:"supporter"`
+	VotedSupporter int `json:"votedSupporter"`
+}
+
+type PollWithMembers struct {
+	models.Poll
+	MemberStatistic PollMemberStats `json:"memberStatistic"`
+}
+
+type PollsWithMembers []PollWithMembers
+
 // PollsList gets all Polls. This function is mapped to the path
 // GET /polls
 func PollsList(c buffalo.Context) error {
@@ -28,56 +42,80 @@ func PollsList(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	polls := &models.Polls{}
+	polls := models.Polls{}
 
 	// Retrieve all Polls from the DB
-	if err := tx.All(polls); err != nil {
+	if err := tx.All(&polls); err != nil {
 		return errors.WithStack(err)
 	}
-
-	type PollMemberStats struct {
-		Total     int `json:"total"`
-		Voted     int `json:"voted"`
-		Supporter int `json:"supporter"`
-	}
-
-	type PollWithMembers struct {
-		models.Poll
-		MemberStatistic PollMemberStats `json:"memberStatistic"`
-	}
-
-	type PollsWithMembers []PollWithMembers
 
 	result := PollsWithMembers{}
 
 	// retrieve members of each pole
-	for _, p := range *polls {
-		members := &models.Members{}
-		s := PollMemberStats{}
-		q := tx.BelongsTo(&p)
-
-		// get total members in the poll
-		cnt, err := q.Count(members)
+	for _, p := range polls {
+		s, err := obtainPollStatistics(tx, &p)
 		if err != nil {
-			return errors.WithStack(err)
-		}
-		s.Total = cnt
-
-		// get total voted members in the poll
-		cnt, err = q.Where("voted = ?", true).Count(members)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		s.Voted = cnt
-
-		if err := q.All(members); err != nil {
 			return errors.WithStack(err)
 		}
 
 		tmp := PollWithMembers{p, s}
-
 		result = append(result, tmp)
 	}
 
 	return c.Render(200, r.JSON(result))
+}
+
+// PollsShow gets the data for one User. This function is mapped to
+// the path GET /polls/{id}
+func PollsShow(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Poll
+	poll := &models.Poll{}
+
+	// To find the User the parameter id is used.
+	if err := tx.Find(poll, c.Param("id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	s, err := obtainPollStatistics(tx, poll)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	result := PollWithMembers{*poll, s}
+
+	return c.Render(200, r.JSON(result))
+}
+
+func obtainPollStatistics(tx *pop.Connection, p *models.Poll) (PollMemberStats, error) {
+	members := &models.Members{}
+	pms := PollMemberStats{}
+	q := tx.BelongsTo(p)
+
+	// get total members in the poll
+	cnt, err := q.Count(members)
+	if err != nil {
+		return pms, err
+	}
+	pms.Total = cnt
+
+	// get total voted members in the poll
+	cnt, err = q.Where("voted = ?", true).Count(members)
+	if err != nil {
+		return pms, err
+	}
+	pms.Voted = cnt
+
+	// get total voted supporter members in the poll
+	cnt, err = q.Where("voted = ? AND supporter = ?", true, true).Count(members)
+	if err != nil {
+		return pms, err
+	}
+	pms.VotedSupporter = cnt
+	return pms, nil
 }

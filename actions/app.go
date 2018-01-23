@@ -56,6 +56,7 @@ func App() *buffalo.App {
 		app.Use(Authenticate)
 		app.Middleware.Skip(Authenticate, HomeHandler)
 		app.Middleware.Skip(Authenticate, RecruitersMembersSearch)
+		app.Middleware.Skip(Authenticate, RecruitersShow)
 
 		// Set the request content type to JSON
 		app.Use(middleware.SetContentType("application/json"))
@@ -72,6 +73,7 @@ func App() *buffalo.App {
 		app.Use(CurrentUserSetter)
 		app.Middleware.Skip(CurrentUserSetter, HomeHandler)
 		app.Middleware.Skip(CurrentUserSetter, RecruitersMembersSearch)
+		app.Middleware.Skip(CurrentUserSetter, RecruitersShow)
 
 		app.GET("/", HomeHandler)
 
@@ -89,6 +91,8 @@ func App() *buffalo.App {
 		app.GET("/roles", RolesList)
 
 		app.GET("/polls", PollsList)
+		app.GET("/polls/{id}", PollsShow)
+
 		app.GET("/recruiters", RecruitersList)
 		app.PUT("/recruiters/{id}", RecruitersUpdate)
 		app.PUT("/recruiters/{id}/invite", RecruitersInvite)
