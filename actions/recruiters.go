@@ -24,6 +24,10 @@ type RecruitersResource struct {
 	buffalo.Resource
 }
 
+type InvitationParams struct {
+	URL string `json:"url"`
+}
+
 // RecruitersList gets all Recruiters. This function is mapped to the path
 // GET /recruiters
 func RecruitersList(c buffalo.Context) error {
@@ -191,6 +195,102 @@ func RecruitersUpdate(c buffalo.Context) error {
 	}
 
 	return c.Render(200, r.JSON(recruiter))
+}
+
+// RecruitersInvite changes a Recruiter in the DB. This function is mapped to
+// the path PUT /recruiters/{recruiter_id}
+func RecruitersInvite(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Recruiter
+	recruiter := &models.Recruiter{}
+
+	if err := tx.Find(recruiter, c.Param("id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	iParams := &InvitationParams{}
+
+	// Bind Recruiter to the html form elements
+	if err := c.Bind(iParams); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if recruiter.NotificationEnabled == false {
+		msg := struct {
+			Message string `json:"message"`
+		}{
+			"Please enable notification first",
+		}
+		return c.Render(301, r.JSON(msg))
+	}
+
+	SendSms(
+		"+1"+recruiter.PhoneNo,
+		TwilioNumber,
+		"Hello "+recruiter.Name+", you've been invited. Please click on "+iParams.URL+"/"+recruiter.ID.String(),
+	)
+
+	recruiter.Invited = true
+	verrs, err := tx.ValidateAndUpdate(recruiter)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if verrs.HasAny() {
+		// Render errors as JSON
+		return c.Render(400, r.JSON(verrs))
+	}
+
+	return c.Render(200, r.JSON(recruiter))
+}
+
+// RecruitersInviteAll changes a Recruiter in the DB. This function is mapped to
+// the path PUT /recruiters/{recruiter_id}
+func RecruitersInviteAll(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Recruiter
+	recruiters := &models.Recruiters{}
+
+	iParams := &InvitationParams{}
+
+	if err := c.Bind(iParams); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if err := tx.Where("notification_enabled = ?", true).All(recruiters); err != nil {
+		return errors.WithStack(err)
+	}
+
+	for _, r := range *recruiters {
+		SendSms(
+			"+1"+r.PhoneNo,
+			TwilioNumber,
+			"Hello "+r.Name+", you've been invited. Please click on "+iParams.URL+"/"+r.ID.String(),
+		)
+
+		if r.Invited == false {
+			r.Invited = true
+			tx.ValidateAndUpdate(&r)
+		}
+	}
+
+	result := struct {
+		Message string `json:"message"`
+	}{
+		"Sms sent to recruiters successfully",
+	}
+
+	return c.Render(200, r.JSON(result))
 }
 
 // Destroy deletes a Recruiter from the DB. This function is mapped

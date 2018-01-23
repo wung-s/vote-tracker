@@ -331,7 +331,7 @@ func MembersUpdate(c buffalo.Context) error {
 
 	postUpdateVoted := member.Voted
 	if preUpdateVoted == false && postUpdateVoted == true && member.RecruiterPhone != "" {
-		sendSms(
+		SendSms(
 			"+1"+member.RecruiterPhone,
 			TwilioNumber,
 			member.FirstName+" "+member.LastName+" just voted",
@@ -341,7 +341,8 @@ func MembersUpdate(c buffalo.Context) error {
 	return c.Render(200, r.JSON(member))
 }
 
-func sendSms(to string, from string, message string) {
+// SendSms sends out sms
+func SendSms(to string, from string, message string) {
 	twilio := gotwilio.NewTwilioClient(TwilioAccountSid, TwilioAuthToken)
 
 	if _, _, err := twilio.SendSMS(from, to, message, "", ""); err != nil {
