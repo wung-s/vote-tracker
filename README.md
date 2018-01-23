@@ -1,7 +1,3 @@
-# Welcome to Buffalo!
-
-Thank you for choosing Buffalo for your web development needs.
-
 ## Database Setup
 
 ### Create Databases
@@ -18,8 +14,8 @@ Thank you for choosing Buffalo for your web development needs.
 
 ## Starting the Application
 
-    $ buffalo dev
+    $ PORT=4000 buffalo dev
 
-If you point your browser to [http://127.0.0.1:3000](http://127.0.0.1:3000) you should see a "Welcome to Buffalo!" page.
+If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you should see a "Welcome to Buffalo!" page.
 
 [Powered by Buffalo](http://gobuffalo.io)
