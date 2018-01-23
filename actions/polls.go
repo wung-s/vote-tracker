@@ -20,10 +20,10 @@ import (
 // View Template Folder: Plural (/templates/polls/)
 
 type PollMemberStats struct {
-	Total          int `json:"total"`
-	Voted          int `json:"voted"`
-	Supporter      int `json:"supporter"`
-	VotedSupporter int `json:"votedSupporter"`
+	Total             int `json:"total"`
+	Supporter         int `json:"supporter"`
+	VotedSupporter    int `json:"votedSupporter"`
+	VotedNonSupporter int `json:"votedNonSupporter"`
 }
 
 type PollWithMembers struct {
@@ -95,27 +95,37 @@ func PollsShow(c buffalo.Context) error {
 func obtainPollStatistics(tx *pop.Connection, p *models.Poll) (PollMemberStats, error) {
 	members := &models.Members{}
 	pms := PollMemberStats{}
-	q := tx.BelongsTo(p)
 
 	// get total members in the poll
+	q := tx.BelongsTo(p)
 	cnt, err := q.Count(members)
 	if err != nil {
 		return pms, err
 	}
 	pms.Total = cnt
 
-	// get total voted members in the poll
-	cnt, err = q.Where("voted = ?", true).Count(members)
+	// get total supporter members in the poll
+	q = tx.BelongsTo(p)
+	cnt, err = q.Where("supporter = ?", true).Count(members)
 	if err != nil {
 		return pms, err
 	}
-	pms.Voted = cnt
+	pms.Supporter = cnt
 
 	// get total voted supporter members in the poll
+	q = tx.BelongsTo(p)
 	cnt, err = q.Where("voted = ? AND supporter = ?", true, true).Count(members)
 	if err != nil {
 		return pms, err
 	}
 	pms.VotedSupporter = cnt
+
+	// get total voted non-supporter members in the poll
+	q = tx.BelongsTo(p)
+	cnt, err = q.Where("voted = ? AND supporter = ?", true, false).Count(members)
+	if err != nil {
+		return pms, err
+	}
+	pms.VotedNonSupporter = cnt
 	return pms, nil
 }
