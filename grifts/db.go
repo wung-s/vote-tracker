@@ -11,8 +11,7 @@ var _ = grift.Namespace("db", func() {
 	grift.Add("seed", func(c *grift.Context) error {
 		// Add DB seeding stuff here
 		addRole("captain")
-		addRole("admin")
-		addRole("recruiter")
+		addRole("scrutineer")
 		addRole("manager")
 		return nil
 	})
