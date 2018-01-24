@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
@@ -33,6 +34,8 @@ type UserParams struct {
 	Email   string     `json:"email" db:"email"`
 	PollID  nulls.UUID `json:"pollId" db:"poll_id"`
 	PhoneNo string     `json:"phoneNo" db:"phone_no"`
+	Invited nulls.Bool `json:"invited" db:"invited"`
+	Pw      string     `json:"pw" db:"-"`
 }
 
 // UsersShow gets the data for one User. This function is mapped to
@@ -161,8 +164,12 @@ func UsersCreate(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
+	if userParams.Pw == "" {
+		return c.Render(http.StatusBadRequest, r.JSON("password cannot be blank"))
+	}
+
 	if !exist {
-		return c.Render(500, r.JSON("Role not found"))
+		return c.Render(http.StatusBadRequest, r.JSON("role not found"))
 	}
 
 	role := &models.Role{}
@@ -172,6 +179,8 @@ func UsersCreate(c buffalo.Context) error {
 
 	if role.Name == "scrutineer" {
 		user.PollID = userParams.PollID
+	} else if role.Name == "captain" {
+		user.PollID = userParams.PollID
 		user.PhoneNo = userParams.PhoneNo
 	}
 
@@ -179,7 +188,7 @@ func UsersCreate(c buffalo.Context) error {
 
 	token := getAuth0Token()
 
-	auth0User, err := createAuth0User(token, user.Email)
+	auth0User, err := createAuth0User(token, user.Email, userParams.Pw)
 	if err != nil {
 		fmt.Println(err)
 		return errors.WithStack(err)
@@ -213,9 +222,9 @@ func UsersCreate(c buffalo.Context) error {
 	return c.Render(201, r.JSON(user))
 }
 
-func createAuth0User(token string, email string) (auth0Succ, error) {
-	url := "https://wung.auth0.com/api/v2/users"
-	payload := strings.NewReader(`{"connection":"Username-Password-Authentication","email":"` + email + `","password": "ffffff","email_verified": true}`)
+func createAuth0User(token string, email string, pw string) (auth0Succ, error) {
+	url := os.Getenv("AUTH0_API_ISSUER") + "api/v2/users"
+	payload := strings.NewReader(`{"connection":"Username-Password-Authentication","email":"` + email + `","password": "` + pw + `","email_verified": true}`)
 	req, _ := http.NewRequest("POST", url, payload)
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+token)
@@ -304,27 +313,48 @@ func UsersUpdate(c buffalo.Context) error {
 		if !exist {
 			return c.Render(500, r.JSON("Role not found"))
 		}
+
+		if err := (*user).DeleteAllRoles(tx); err != nil {
+			return errors.WithStack(err)
+		}
+
+		userRole := &models.UserRole{}
+		userRole.UserID = user.ID
+		userRole.RoleID = userParams.RoleID
+
+		_, err = tx.ValidateAndCreate(userRole)
+		if err != nil {
+			return errors.WithStack(err)
+		}
 	}
 
-	// Delete all existing roles
-	sql := "DELETE FROM user_roles as user_roles WHERE user_roles.user_id = ?"
-	err := tx.RawQuery(sql, user.ID).Exec()
+	// set PollID if persent
+	if !uuid.Equal(userParams.PollID.UUID, uuid.UUID{}) {
+		user.PollID = userParams.PollID
+	}
+
+	// set Invited if persent
+	if v, _ := userParams.Invited.Value(); v != nil {
+		user.Invited = userParams.Invited
+	}
+
+	verrs, err := tx.ValidateAndUpdate(user)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-
-	userRole := &models.UserRole{}
-	userRole.UserID = user.ID
-	userRole.RoleID = userParams.RoleID
-
-	verrs, err := tx.ValidateAndCreate(userRole)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
 	if verrs.HasAny() {
-		// Render errors as JSON
 		return c.Render(400, r.JSON(verrs))
+	}
+
+	if userParams.Invited.Bool == true {
+		err := SendSms(
+			user.PhoneNo,
+			os.Getenv("TWILIO_NO"),
+			"Hello "+user.Email+", you've been invited")
+
+		if err != nil {
+			return errors.WithStack(err)
+		}
 	}
 
 	return c.Render(200, r.JSON(user))

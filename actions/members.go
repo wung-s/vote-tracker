@@ -342,11 +342,13 @@ func MembersUpdate(c buffalo.Context) error {
 }
 
 // SendSms sends out sms
-func SendSms(to string, from string, message string) {
+func SendSms(to string, from string, message string) error {
 	twilio := gotwilio.NewTwilioClient(os.Getenv("TWILIO_AC_SID"), os.Getenv("TWILIO_AUTH_TOKEN"))
 	if _, _, err := twilio.SendSMS(from, to, message, "", ""); err != nil {
 		fmt.Print(err)
+		return err
 	}
+	return nil
 }
 
 // Destroy deletes a Member from the DB. This function is mapped

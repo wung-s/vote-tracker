@@ -1,9 +1,10 @@
 package models
 
 import (
-	"github.com/markbates/pop/nulls"
 	"encoding/json"
 	"time"
+
+	"github.com/markbates/pop/nulls"
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
@@ -12,13 +13,35 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	CreatedAt time.Time `json:"createdAt" db:"created_at"`
-	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
-	AuthID    string    `json:"authId" db:"auth_id"`
-	Email     string    `json:"email" db:"email"`
-	PhoneNo   string    `json:"phoneNo" db:"phone_no"`
+	ID        uuid.UUID  `json:"id" db:"id"`
+	CreatedAt time.Time  `json:"createdAt" db:"created_at"`
+	UpdatedAt time.Time  `json:"updatedAt" db:"updated_at"`
+	AuthID    string     `json:"authId" db:"auth_id"`
+	Email     string     `json:"email" db:"email"`
+	PhoneNo   string     `json:"phoneNo" db:"phone_no"`
 	PollID    nulls.UUID `json:"pollId" db:"poll_id"`
+	Invited   nulls.Bool `json:"invited" db:"invited"`
+}
+
+// DeleteAllRoles removes all associated roles of a user
+func (u User) DeleteAllRoles(tx *pop.Connection) error {
+	sql := "DELETE FROM user_roles as user_roles WHERE user_roles.user_id = ?"
+	return tx.RawQuery(sql, u.ID).Exec()
+}
+
+// Roles gives back the roles of a user
+func (u User) Roles(tx *pop.Connection) ([]string, error) {
+	roles := &Roles{}
+	sql := "SELECT roles.* FROM user_roles INNER JOIN roles ON user_roles.role_id = roles.id WHERE user_roles.user_id = ?"
+	if err := tx.RawQuery(sql, u.ID).All(roles); err != nil {
+		return []string{}, err
+	}
+
+	rnames := []string{}
+	for _, r := range *roles {
+		rnames = append(rnames, r.Name)
+	}
+	return rnames, nil
 }
 
 // String is not required by pop and may be deleted

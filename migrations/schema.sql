@@ -144,7 +144,8 @@ CREATE TABLE users (
     updated_at timestamp without time zone NOT NULL,
     auth_id character varying(255) NOT NULL,
     phone_no character varying(255) DEFAULT ''::character varying NOT NULL,
-    poll_id uuid
+    poll_id uuid,
+    invited boolean
 );
 
 
