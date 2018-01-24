@@ -51,13 +51,14 @@ CREATE TABLE members (
     postal_code character varying(255) DEFAULT ''::character varying NOT NULL,
     home_phone character varying(255) DEFAULT ''::character varying NOT NULL,
     cell_phone character varying(255) DEFAULT ''::character varying NOT NULL,
-    recruiter character varying(255) DEFAULT ''::character varying NOT NULL,
     recruiter_phone character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     poll_id uuid NOT NULL,
     supporter boolean DEFAULT false NOT NULL,
-    voted boolean DEFAULT false NOT NULL
+    voted boolean DEFAULT false NOT NULL,
+    recruiter character varying(255) DEFAULT ''::character varying NOT NULL,
+    recruiter_id uuid NOT NULL
 );
 
 
@@ -76,6 +77,23 @@ CREATE TABLE polls (
 
 
 ALTER TABLE polls OWNER TO postgres;
+
+--
+-- Name: recruiters; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE recruiters (
+    id uuid NOT NULL,
+    name character varying(255) DEFAULT ''::character varying NOT NULL,
+    phone_no character varying(255) DEFAULT ''::character varying NOT NULL,
+    invited boolean DEFAULT false NOT NULL,
+    notification_enabled boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE recruiters OWNER TO postgres;
 
 --
 -- Name: roles; Type: TABLE; Schema: public; Owner: postgres
@@ -124,7 +142,9 @@ CREATE TABLE users (
     email character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    auth_id character varying(255) NOT NULL
+    auth_id character varying(255) NOT NULL,
+    phone_no character varying(255) DEFAULT ''::character varying NOT NULL,
+    poll_id uuid
 );
 
 
@@ -144,6 +164,14 @@ ALTER TABLE ONLY members
 
 ALTER TABLE ONLY polls
     ADD CONSTRAINT polls_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recruiters recruiters_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY recruiters
+    ADD CONSTRAINT recruiters_pkey PRIMARY KEY (id);
 
 
 --
@@ -175,6 +203,13 @@ ALTER TABLE ONLY users
 --
 
 CREATE UNIQUE INDEX polls_name_idx ON polls USING btree (name);
+
+
+--
+-- Name: recruiters_phone_no_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX recruiters_phone_no_idx ON recruiters USING btree (phone_no);
 
 
 --
@@ -214,6 +249,14 @@ ALTER TABLE ONLY members
 
 
 --
+-- Name: members members_recruiter_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY members
+    ADD CONSTRAINT members_recruiter_id_fkey FOREIGN KEY (recruiter_id) REFERENCES recruiters(id);
+
+
+--
 -- Name: user_roles user_roles_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -227,6 +270,14 @@ ALTER TABLE ONLY user_roles
 
 ALTER TABLE ONLY user_roles
     ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);
+
+
+--
+-- Name: users users_poll_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_poll_id_fkey FOREIGN KEY (poll_id) REFERENCES polls(id);
 
 
 --

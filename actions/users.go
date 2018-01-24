@@ -9,6 +9,7 @@ import (
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
+	"github.com/markbates/pop/nulls"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/wung-s/gotv/models"
@@ -27,9 +28,11 @@ import (
 // View Template Folder: Plural (/templates/users/)
 
 type UserParams struct {
-	AuthID uuid.UUID `json:"auth_id" db:"auth_id"`
-	RoleID uuid.UUID `json:"role_id" db:"role_id"`
-	Email  string    `json:"email" db:"email"`
+	AuthID  uuid.UUID  `json:"authId" db:"auth_id"`
+	RoleID  uuid.UUID  `json:"roleId" db:"role_id"`
+	Email   string     `json:"email" db:"email"`
+	PollID  nulls.UUID `json:"pollId" db:"poll_id"`
+	PhoneNo string     `json:"phoneNo" db:"phone_no"`
 }
 
 // UsersShow gets the data for one User. This function is mapped to
@@ -151,14 +154,25 @@ func UsersCreate(c buffalo.Context) error {
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
+	q := tx.Where("id = ?", userParams.RoleID)
 
-	exist, err := tx.Where("id = ?", userParams.RoleID).Exists("roles")
+	exist, err := q.Exists("roles")
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	if !exist {
 		return c.Render(500, r.JSON("Role not found"))
+	}
+
+	role := &models.Role{}
+	if err := tx.Find(role, userParams.RoleID); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if role.Name == "scrutineer" {
+		user.PollID = userParams.PollID
+		user.PhoneNo = userParams.PhoneNo
 	}
 
 	user.Email = userParams.Email

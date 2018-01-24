@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/markbates/pop/nulls"
 	"encoding/json"
 	"time"
 
@@ -16,6 +17,8 @@ type User struct {
 	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
 	AuthID    string    `json:"authId" db:"auth_id"`
 	Email     string    `json:"email" db:"email"`
+	PhoneNo   string    `json:"phoneNo" db:"phone_no"`
+	PollID    nulls.UUID `json:"pollId" db:"poll_id"`
 }
 
 // String is not required by pop and may be deleted
