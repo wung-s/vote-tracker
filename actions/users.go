@@ -177,9 +177,7 @@ func UsersCreate(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if role.Name == "scrutineer" {
-		user.PollID = userParams.PollID
-	} else if role.Name == "captain" {
+	if role.Name == "captain" {
 		user.PollID = userParams.PollID
 		user.PhoneNo = userParams.PhoneNo
 	}
