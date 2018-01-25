@@ -37,7 +37,18 @@ JWKS_URI=https://gotv.auth0.com/.well-known/jwks.json
 
 If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you should see a "Welcome to Buffalo!" page.
 
-## Deploy to Heroku
+## Heroku
+
+### Set Environment Variables
+
+    $ heroku config:set TWILIO_AC_SID=AC23a19xxxxxxxxxxb60783eccfa4c2
+    $ heroku config:set TWILIO_AUTH_TOKEN=f57fbe7303e5dxxxxxxx4eafbf6796
+    $ heroku config:set TWILIO_NO=+0123456789
+    $ heroku config:set AUTH0_API_AUDIENCE_VAL1=https://dev.rallychq.com
+    $ heroku config:set AUTH0_API_ISSUER=https://gotv.auth0.com/
+    $ heroku config:set JWKS_URI=https://gotv.auth0.com/.well-known/jwks.json
+
+### Deployment
 
     $ heroku container:login
     $ heroku container:push web
