@@ -65,6 +65,37 @@ CREATE TABLE members (
 ALTER TABLE members OWNER TO postgres;
 
 --
+-- Name: members_view; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW members_view AS
+ SELECT members.id,
+    members.first_name,
+    members.last_name,
+    members.voter_id,
+    members.unit_number,
+    members.street_number,
+    members.street_name,
+    members.city,
+    members.state,
+    members.postal_code,
+    members.home_phone,
+    members.cell_phone,
+    members.recruiter_phone,
+    members.created_at,
+    members.updated_at,
+    members.poll_id,
+    members.supporter,
+    members.voted,
+    members.recruiter,
+    members.recruiter_id,
+    concat_ws(' '::text, (members.unit_number)::text, (members.street_number)::text, (members.street_name)::text) AS address
+   FROM members;
+
+
+ALTER TABLE members_view OWNER TO postgres;
+
+--
 -- Name: polls; Type: TABLE; Schema: public; Owner: postgres
 --
 
