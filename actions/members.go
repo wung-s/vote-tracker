@@ -35,6 +35,17 @@ type MembersResource struct {
 	buffalo.Resource
 }
 
+// MembersViewSearchResult will contain the result of search along with pagination information
+type MembersViewSearchResult struct {
+	models.MembersView `json:"members"`
+	Page               int `json:"page"`
+	PerPage            int `json:"perPage"`
+	Offset             int `json:"offset"`
+	TotalEntriesSize   int `json:"totalEntriesSize"`
+	CurrentEntriesSize int `json:"currentEntriesSize"`
+	TotalPages         int `json:"totalPages"`
+}
+
 // MembersList gets all Members. This function is mapped to the path
 // GET /members
 func MembersList(c buffalo.Context) error {
@@ -395,15 +406,7 @@ func MembersSearch(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	result := struct {
-		models.MembersView `json:"members"`
-		Page               int `json:"page"`
-		PerPage            int `json:"perPage"`
-		Offset             int `json:"offset"`
-		TotalEntriesSize   int `json:"totalEntriesSize"`
-		CurrentEntriesSize int `json:"currentEntriesSize"`
-		TotalPages         int `json:"totalPages"`
-	}{
+	result := MembersViewSearchResult{
 		*members,
 		q.Paginator.Page,
 		q.Paginator.PerPage,
@@ -424,32 +427,24 @@ func RecruitersMembersSearch(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	members := &models.Members{}
+	members := &models.MembersView{}
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
 	q := tx.PaginateFromParams(c.Params()).Where("recruiter_id = ?", c.Param("id"))
 
-	// if c.Param("voted") != "" {
-	// 	q = q.Where("voted = ?", c.Param("voted"))
-	// }
+	if err := members.FilterFromParam(q, c); err != nil {
+		return c.Error(404, err)
+	}
 
-	// if c.Param("voter_id") != "" {
-	// 	q = q.Where("voter_id = ?", c.Param("voter_id"))
-	// }
+	if err := q.All(members); err != nil {
+		return c.Error(404, err)
+	}
 
-	// if err := q.All(members); err != nil {
-	// 	return c.Error(404, err)
-	// }
+	if err := members.FilterFromParam(q, c); err != nil {
+		return c.Error(404, err)
+	}
 
-	result := struct {
-		models.Members     `json:"members"`
-		Page               int `json:"page"`
-		PerPage            int `json:"perPage"`
-		Offset             int `json:"offset"`
-		TotalEntriesSize   int `json:"totalEntriesSize"`
-		CurrentEntriesSize int `json:"currentEntriesSize"`
-		TotalPages         int `json:"totalPages"`
-	}{
+	result := MembersViewSearchResult{
 		*members,
 		q.Paginator.Page,
 		q.Paginator.PerPage,
