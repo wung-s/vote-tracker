@@ -6,7 +6,8 @@ RUN mkdir -p $GOPATH/src/github.com/wung-s/gotv
 WORKDIR $GOPATH/src/github.com/wung-s/gotv
 
 ADD . .
-RUN go get $(go list ./... | grep -v /vendor/)
+# RUN go get $(go list ./... | grep -v /vendor/)
+RUN dep ensure
 RUN buffalo build --static -o /bin/app
 
 FROM alpine
