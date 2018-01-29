@@ -44,8 +44,11 @@ func App() *buffalo.App {
 			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 		}))
 
+		InitializeFirebase()
+		app.Use(middleware.PopTransaction(models.DB))
+
 		app.Use(Authenticate)
-		app.Middleware.Skip(Authenticate, HomeHandler)
+		// app.Middleware.Skip(Authenticate, HomeHandler)
 		app.Middleware.Skip(Authenticate, RecruitersMembersSearch)
 		app.Middleware.Skip(Authenticate, RecruitersShow)
 
@@ -59,12 +62,6 @@ func App() *buffalo.App {
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.PopTransaction)
 		// Remove to disable this.
-		app.Use(middleware.PopTransaction(models.DB))
-
-		app.Use(CurrentUserSetter)
-		app.Middleware.Skip(CurrentUserSetter, HomeHandler)
-		app.Middleware.Skip(CurrentUserSetter, RecruitersMembersSearch)
-		app.Middleware.Skip(CurrentUserSetter, RecruitersShow)
 
 		app.GET("/", HomeHandler)
 
