@@ -254,10 +254,9 @@ func createAuth0User(token string, email string, pw string) (auth0Succ, error) {
 }
 
 func getAuth0Token() string {
-	url := "https://wung.auth0.com/oauth/token"
-
-	payload := strings.NewReader("{\"grant_type\":\"client_credentials\",\"client_id\": \"63WJajY4AcAWcj4fJWQEHB3KdKM5co4q\",\"client_secret\": \"Hl5BDf_Xy7PDWpfYLgs1pdg4MGuklH2Efq2Z6TcT03RRhT5TUKRF3iHHib9vNbCQ\",\"audience\": \"https://wung.auth0.com/api/v2/\"}")
-
+	url := os.Getenv("AUTH0_API_ISSUER") + "oauth/token"
+	tmp := fmt.Sprintf("{\"grant_type\":\"client_credentials\",\"client_id\": \"%s\",\"client_secret\": \"%s\",\"audience\": \"%s\"}", os.Getenv("AUTH0_CLIENT_ID"), os.Getenv("AUTH0_CLIENT_SECRET"), os.Getenv("AUTH0_API_ISSUER")+"api/v2/")
+	payload := strings.NewReader(tmp)
 	req, _ := http.NewRequest("POST", url, payload)
 
 	req.Header.Add("content-type", "application/json")
@@ -276,7 +275,6 @@ func getAuth0Token() string {
 	if err := json.Unmarshal([]byte(string(body)), &ar); err != nil {
 		fmt.Println(err)
 	}
-
 	return string(ar.AccessToken)
 }
 

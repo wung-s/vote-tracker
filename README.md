@@ -47,6 +47,8 @@ If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you 
     $ heroku config:set AUTH0_API_AUDIENCE_VAL1=https://dev.rallychq.com
     $ heroku config:set AUTH0_API_ISSUER=https://gotv.auth0.com/
     $ heroku config:set JWKS_URI=https://gotv.auth0.com/.well-known/jwks.json
+    $ heroku config:set AUTH0_CLIENT_ID=nlKFW5maxxxXouVfuVXDs8duFFpH1
+    $ heroku config:set AUTH0_CLIENT_SECRET=BcDvk7wxxxxxchm1J2PYwTpa-TMICbvYf1Vc8nCeiNxGao1D8tNL62o
 
 ### Deployment
 
