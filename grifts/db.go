@@ -14,8 +14,8 @@ var _ = grift.Namespace("db", func() {
 		addRole("scrutineer")
 		addRole("manager")
 
-		// IMPORTANT: Obtain the auth0ID from Auth0 after manually creating the user
-		addUser("test1@test.com", "auth0|5a6839975481302d50b82ade", "manager")
+		// IMPORTANT: Obtain the uuid from Firebase after manually creating the user
+		addUser("test1@test.com", "eXe1tqzn26P7WICMt73Ozipzkw93", "manager")
 		return nil
 	})
 })
