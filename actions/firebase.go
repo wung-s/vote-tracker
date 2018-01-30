@@ -21,7 +21,7 @@ func InitializeFirebase() error {
 	}
 
 	// opt := option.WithCredentialsFile(dir + "/serviceAccountKey.json")
-	opt := option.WithCredentialsFile(dir + "/config/" + os.Getenv("FB_SERVICE_AC_KEY"))
+	opt := option.WithCredentialsFile(dir + "/configuration/" + os.Getenv("FB_SERVICE_AC_KEY"))
 	FirebaseApp, err = firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
