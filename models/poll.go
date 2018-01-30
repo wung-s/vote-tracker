@@ -26,6 +26,14 @@ func (p Poll) String() string {
 // Polls is not required by pop and may be deleted
 type Polls []Poll
 
+type StreetStat struct {
+	StreetName string `json:"streetName" db:"street_name"`
+	Voted      int    `json:"voted"`
+	Total      int    `json:"total"`
+}
+
+type StreetsStats []StreetStat
+
 // String is not required by pop and may be deleted
 func (p Polls) String() string {
 	jp, _ := json.Marshal(p)

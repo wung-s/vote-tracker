@@ -48,7 +48,7 @@ func App() *buffalo.App {
 		app.Use(middleware.PopTransaction(models.DB))
 
 		app.Use(Authenticate)
-		// app.Middleware.Skip(Authenticate, HomeHandler)
+		app.Middleware.Skip(Authenticate, HomeHandler)
 		app.Middleware.Skip(Authenticate, RecruitersMembersSearch)
 		app.Middleware.Skip(Authenticate, RecruitersShow)
 
@@ -79,6 +79,7 @@ func App() *buffalo.App {
 		app.GET("/roles", RolesList)
 
 		app.GET("/polls", PollsList)
+		app.GET("/polls/streets", PollsStreets)
 		app.GET("/polls/{id}", PollsShow)
 
 		app.GET("/recruiters", RecruitersList)

@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
@@ -128,4 +130,41 @@ func obtainPollStatistics(tx *pop.Connection, p *models.Poll) (PollMemberStats, 
 	}
 	pms.VotedNonSupporter = cnt
 	return pms, nil
+}
+
+func PollsStreets(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	polls := models.Polls{}
+
+	// Retrieve all Polls from the DB
+	if err := tx.All(&polls); err != nil {
+		return errors.WithStack(err)
+	}
+
+	type pollsStreetsList struct {
+		models.Poll
+		Streets models.StreetsStats `json:"streets"`
+	}
+
+	result := []pollsStreetsList{}
+
+	for _, p := range polls {
+		sql := `SELECT street_name, count(*) filter (where voted = true) as voted, count(*) as total
+						FROM public.members where poll_id = ? GROUP BY street_name;`
+		ss := models.StreetsStats{}
+
+		if err := tx.RawQuery(sql, p.ID).All(&ss); err != nil {
+			fmt.Println(err)
+		}
+
+		tmp := pollsStreetsList{p, ss}
+		result = append(result, tmp)
+	}
+
+	return c.Render(200, r.JSON(result))
 }

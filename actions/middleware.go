@@ -44,7 +44,6 @@ func Authenticate(next buffalo.Handler) buffalo.Handler {
 
 func setCurrentUser(uid string, c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
-
 	user := &models.User{}
 	err := tx.Where("auth_id = ?", uid).First(user)
 
