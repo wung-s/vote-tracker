@@ -194,19 +194,19 @@ func MembersUpload(c buffalo.Context) error {
 		}
 
 		member := &models.Member{
-			VoterID:        line[0],
-			LastName:       line[1],
-			FirstName:      line[2],
-			UnitNumber:     line[3],
-			StreetNumber:   line[4],
-			StreetName:     line[5],
-			City:           line[6],
-			State:          line[7],
-			PostalCode:     line[8],
-			HomePhone:      line[9],
-			CellPhone:      line[10],
-			Recruiter:      line[11],
-			RecruiterPhone: line[13],
+			VoterID:        strings.TrimSpace(line[0]),
+			LastName:       strings.TrimSpace(line[1]),
+			FirstName:      strings.TrimSpace(line[2]),
+			UnitNumber:     strings.TrimSpace(line[3]),
+			StreetNumber:   strings.TrimSpace(line[4]),
+			StreetName:     strings.TrimSpace(line[5]),
+			City:           strings.TrimSpace(line[6]),
+			State:          strings.TrimSpace(line[7]),
+			PostalCode:     strings.TrimSpace(line[8]),
+			HomePhone:      strings.TrimSpace(line[9]),
+			CellPhone:      strings.TrimSpace(line[10]),
+			Recruiter:      strings.TrimSpace(line[11]),
+			RecruiterPhone: strings.TrimSpace(line[13]),
 			Supporter:      strings.TrimSpace(line[14]) == ("TRUE") || strings.TrimSpace(line[14]) == ("true"),
 		}
 
@@ -396,7 +396,12 @@ func MembersSearch(c buffalo.Context) error {
 
 	members := &models.MembersView{}
 
-	q := tx.PaginateFromParams(c.Params())
+	var q *pop.Query
+	if c.Param("paginate") == "none" {
+		q = tx.Q()
+	} else {
+		q = tx.PaginateFromParams(c.Params())
+	}
 
 	if err := members.FilterFromParam(q, c); err != nil {
 		return c.Error(404, err)
@@ -404,6 +409,15 @@ func MembersSearch(c buffalo.Context) error {
 
 	if err := q.All(members); err != nil {
 		return c.Error(404, err)
+	}
+
+	if c.Param("paginate") == "none" {
+		result := struct {
+			Members models.MembersView `json:"members"`
+		}{
+			*members,
+		}
+		return c.Render(200, r.JSON(result))
 	}
 
 	result := MembersViewSearchResult{
