@@ -420,7 +420,6 @@ func MembersSearch(c buffalo.Context) error {
 
 		mswd := []MemberWithDisposition{}
 		for _, m := range *members {
-
 			d := models.Dispositions{}
 			q := tx.Where("member_id = ?", m.ID)
 			if err := q.All(&d); err != nil {
