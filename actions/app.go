@@ -88,6 +88,8 @@ func App() *buffalo.App {
 		app.POST("/recruiters/inviteAll", RecruitersInviteAll)
 		app.GET("/recruiters/{id}", RecruitersShow)
 		app.GET("/recruiters/{id}/members/search", RecruitersMembersSearch)
+
+		app.POST("/members/{id}/dispositions", DispositionsCreate)
 	}
 
 	return app

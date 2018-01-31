@@ -35,6 +35,22 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: dispositions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE dispositions (
+    id uuid NOT NULL,
+    intention character varying(255) DEFAULT ''::character varying NOT NULL,
+    contact_type character varying(255) DEFAULT ''::character varying NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    member_id uuid NOT NULL
+);
+
+
+ALTER TABLE dispositions OWNER TO postgres;
+
+--
 -- Name: members; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -183,6 +199,14 @@ CREATE TABLE users (
 ALTER TABLE users OWNER TO postgres;
 
 --
+-- Name: dispositions dispositions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dispositions
+    ADD CONSTRAINT dispositions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: members members_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -270,6 +294,14 @@ CREATE UNIQUE INDEX users_email_idx ON users USING btree (email);
 --
 
 CREATE UNIQUE INDEX version_idx ON schema_migration USING btree (version);
+
+
+--
+-- Name: dispositions dispositions_member_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dispositions
+    ADD CONSTRAINT dispositions_member_id_fkey FOREIGN KEY (member_id) REFERENCES members(id);
 
 
 --

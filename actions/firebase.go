@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"os"
 
@@ -15,13 +15,10 @@ var FirebaseApp *firebase.App
 
 // InitializeFirebase set up firebase
 func InitializeFirebase() error {
-	dir, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-	}
+	err := errors.New("Placeholder error")
 
 	// opt := option.WithCredentialsFile(dir + "/serviceAccountKey.json")
-	opt := option.WithCredentialsFile(dir + "/configuration/" + os.Getenv("FB_SERVICE_AC_KEY"))
+	opt := option.WithCredentialsFile(os.Getenv("FB_SERVICE_AC_KEY"))
 	FirebaseApp, err = firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)

@@ -411,11 +411,28 @@ func MembersSearch(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
+	type MemberWithDisposition struct {
+		models.MemberView
+		Disposition models.Dispositions `json:"disposition"`
+	}
+
 	if c.Param("paginate") == "none" {
+
+		mswd := []MemberWithDisposition{}
+		for _, m := range *members {
+
+			d := models.Dispositions{}
+			q := tx.Where("member_id = ?", m.ID)
+			if err := q.All(&d); err != nil {
+				return c.Error(404, err)
+			}
+			mswd = append(mswd, MemberWithDisposition{m, d})
+		}
+
 		result := struct {
-			Members models.MembersView `json:"members"`
+			Members []MemberWithDisposition `json:"members"`
 		}{
-			*members,
+			mswd,
 		}
 		return c.Render(200, r.JSON(result))
 	}

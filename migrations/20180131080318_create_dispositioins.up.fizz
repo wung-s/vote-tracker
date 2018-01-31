@@ -1,0 +1,7 @@
+create_table("dispositions", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("intention", "string", {"default": ""})
+  t.Column("contact_type", "string", {"default": ""})
+})
+
+raw("ALTER TABLE dispositions ADD COLUMN member_id uuid REFERENCES members NOT NULL;")
