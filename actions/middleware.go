@@ -21,7 +21,9 @@ func Authenticate(next buffalo.Handler) buffalo.Handler {
 
 		idToken := c.Request().Header.Get("Authorization")
 		idToken = strings.Replace(idToken, `bearer `, "", 1)
-		fmt.Println("Authorization", idToken)
+		if ENV == "development" {
+			fmt.Println("Authorization", idToken)
+		}
 
 		token, err := client.VerifyIDToken(idToken)
 		if err != nil {
@@ -73,8 +75,6 @@ func setCurrentUser(uid string, c buffalo.Context) error {
 		*user,
 		roleNames,
 	}
-
-	fmt.Println("set current user", currentUser)
 
 	c.Set("currentUser", currentUser)
 	return nil

@@ -12,3 +12,4 @@ gotv
 .vscode/
 .grifter/
 .env
+firebaseKey.json
