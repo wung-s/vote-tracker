@@ -88,10 +88,12 @@ func App() *buffalo.App {
 		app.GET("/recruiters/{id}", RecruitersShow)
 		app.GET("/recruiters/{id}/members/search", RecruitersMembersSearch)
 
+		app.GET("/ride_requests", RideRequestList)
 		app.POST("/members/{id}/dispositions", DispositionsCreate)
 		app.POST("/members/{member_id}/ride_requests", RideRequestsCreate)
 		app.GET("/members/{member_id}/ride_requests", MemberRideRequestsShow)
 		app.PUT("/ride_requests/{id}", RideRequestUpdate)
+
 	}
 
 	return app

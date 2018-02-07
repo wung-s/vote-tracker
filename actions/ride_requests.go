@@ -29,28 +29,30 @@ type RideRequestsResource struct {
 	buffalo.Resource
 }
 
-// List gets all RideRequests. This function is mapped to the path
+type rideRequestWithAddr struct {
+	ID         uuid.UUID `json:"id" db:"id"`
+	CreatedAt  time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+	Address    string    `json:"address" db:"address"`
+	MemberID   uuid.UUID `json:"memberId" db:"member_id"`
+	AltAddress string    `json:"alt_address" db:"alt_address"`
+}
+
+// RideRequestList gets all RideRequests. This function is mapped to the path
 // GET /ride_requests
-func (v RideRequestsResource) List(c buffalo.Context) error {
+func RideRequestList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	rideRequests := &models.RideRequests{}
+	rideRequests := &[]rideRequestWithAddr{}
+	q := tx.Q()
+	q = q.LeftJoin("members_view", "ride_requests.member_id = members_view.id")
 
-	// Paginate results. Params "page" and "per_page" control pagination.
-	// Default values are "page=1" and "per_page=20".
-	q := tx.PaginateFromParams(c.Params())
-
-	// Retrieve all RideRequests from the DB
-	if err := q.All(rideRequests); err != nil {
-		return errors.WithStack(err)
-	}
-
-	// Add the paginator to the headers so clients know how to paginate.
-	c.Response().Header().Set("X-Pagination", q.Paginator.String())
+	sql, args := q.ToSQL(&pop.Model{Value: models.RideRequest{}}, "ride_requests.*", "members_view.address as alt_address")
+	tx.RawQuery(sql, args...).All(rideRequests)
 
 	return c.Render(200, r.JSON(rideRequests))
 }
@@ -64,15 +66,7 @@ func MemberRideRequestsShow(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	type rrWithAddr struct {
-		ID         uuid.UUID `json:"id" db:"id"`
-		CreatedAt  time.Time `json:"created_at" db:"created_at"`
-		UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
-		Address    string    `json:"address" db:"address"`
-		MemberID   uuid.UUID `json:"memberId" db:"member_id"`
-		AltAddress string    `json:"alt_address" db:"alt_address"`
-	}
-	rideRequest := &rrWithAddr{}
+	rideRequest := &rideRequestWithAddr{}
 
 	q := tx.Where("member_id = ?", c.Param("member_id"))
 	q = q.LeftJoin("members_view", "ride_requests.member_id = members_view.id")
