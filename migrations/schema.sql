@@ -143,6 +143,21 @@ CREATE TABLE recruiters (
 ALTER TABLE recruiters OWNER TO postgres;
 
 --
+-- Name: ride_requests; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE ride_requests (
+    id uuid NOT NULL,
+    address text DEFAULT ''::text NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    member_id uuid NOT NULL
+);
+
+
+ALTER TABLE ride_requests OWNER TO postgres;
+
+--
 -- Name: roles; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -228,6 +243,14 @@ ALTER TABLE ONLY polls
 
 ALTER TABLE ONLY recruiters
     ADD CONSTRAINT recruiters_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ride_requests ride_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY ride_requests
+    ADD CONSTRAINT ride_requests_pkey PRIMARY KEY (id);
 
 
 --
@@ -318,6 +341,14 @@ ALTER TABLE ONLY members
 
 ALTER TABLE ONLY members
     ADD CONSTRAINT members_recruiter_id_fkey FOREIGN KEY (recruiter_id) REFERENCES recruiters(id);
+
+
+--
+-- Name: ride_requests ride_requests_member_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY ride_requests
+    ADD CONSTRAINT ride_requests_member_id_fkey FOREIGN KEY (member_id) REFERENCES members(id);
 
 
 --

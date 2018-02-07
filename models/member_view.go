@@ -71,6 +71,10 @@ func (msv MembersView) FilterFromParam(q *pop.Query, c buffalo.Context) error {
 		q = q.Where("recruiter_id = ?", c.Param("recruiter_id"))
 	}
 
+	if c.Param("supporter") != "" {
+		q = q.Where("supporter = ?", c.Param("supporter"))
+	}
+
 	return nil
 
 }

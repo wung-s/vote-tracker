@@ -65,7 +65,6 @@ func App() *buffalo.App {
 
 		app.GET("/", HomeHandler)
 
-		// app.Resource("/members", MembersResource{})
 		app.GET("/members", MembersList)
 		app.PUT("/members/{id}", MembersUpdate)
 		app.POST("/members/upload", MembersUpload)
@@ -90,6 +89,9 @@ func App() *buffalo.App {
 		app.GET("/recruiters/{id}/members/search", RecruitersMembersSearch)
 
 		app.POST("/members/{id}/dispositions", DispositionsCreate)
+		app.POST("/members/{member_id}/ride_requests", RideRequestsCreate)
+		app.GET("/members/{member_id}/ride_requests", MemberRideRequestsShow)
+		app.PUT("/ride_requests/{id}", RideRequestUpdate)
 	}
 
 	return app
