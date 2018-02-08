@@ -11,8 +11,8 @@ import (
 
 type RideRequest struct {
 	ID        uuid.UUID `json:"id" db:"id"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
 	Address   string    `json:"address" db:"address"`
 	MemberID  uuid.UUID `json:"memberId" db:"member_id"`
 }

@@ -29,15 +29,6 @@ type RideRequestsResource struct {
 	buffalo.Resource
 }
 
-type rideRequestWithAddr struct {
-	ID         uuid.UUID `json:"id" db:"id"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
-	Address    string    `json:"address" db:"address"`
-	MemberID   uuid.UUID `json:"memberId" db:"member_id"`
-	AltAddress string    `json:"alt_address" db:"alt_address"`
-}
-
 // RideRequestList gets all RideRequests. This function is mapped to the path
 // GET /ride_requests
 func RideRequestList(c buffalo.Context) error {
@@ -47,14 +38,29 @@ func RideRequestList(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	rideRequests := &[]rideRequestWithAddr{}
-	q := tx.Q()
-	q = q.LeftJoin("members_view", "ride_requests.member_id = members_view.id")
+	rideRequests := &models.RideRequests{}
 
-	sql, args := q.ToSQL(&pop.Model{Value: models.RideRequest{}}, "ride_requests.*", "members_view.address as alt_address")
-	tx.RawQuery(sql, args...).All(rideRequests)
+	if err := tx.All(rideRequests); err != nil {
+		return errors.WithStack(err)
+	}
 
-	return c.Render(200, r.JSON(rideRequests))
+	type rrWithMember struct {
+		models.RideRequest
+		Member models.Member `json:"member"`
+	}
+
+	result := []rrWithMember{}
+
+	for _, r := range *rideRequests {
+		member := models.Member{}
+		if err := tx.Find(&member, r.MemberID); err != nil {
+			return errors.WithStack(err)
+		}
+
+		result = append(result, rrWithMember{r, member})
+	}
+
+	return c.Render(200, r.JSON(result))
 }
 
 // MemberRideRequestsShow gets the data for one RideRequest. This function is mapped to
@@ -64,6 +70,15 @@ func MemberRideRequestsShow(c buffalo.Context) error {
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	type rideRequestWithAddr struct {
+		ID         uuid.UUID `json:"id" db:"id"`
+		CreatedAt  time.Time `json:"createdAt" db:"created_at"`
+		UpdatedAt  time.Time `json:"updatedAt" db:"updated_at"`
+		Address    string    `json:"address" db:"address"`
+		MemberID   uuid.UUID `json:"memberId" db:"member_id"`
+		AltAddress string    `json:"altAddress" db:"alt_address"`
 	}
 
 	rideRequest := &rideRequestWithAddr{}
