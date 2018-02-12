@@ -32,6 +32,14 @@ func (r Roles) String() string {
 	return string(jr)
 }
 
+func (r Roles) Names() []string {
+	names := []string{}
+	for _, v := range r {
+		names = append(names, v.Name)
+	}
+	return names
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (r *Role) Validate(tx *pop.Connection) (*validate.Errors, error) {

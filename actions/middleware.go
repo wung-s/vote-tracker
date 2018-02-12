@@ -21,10 +21,9 @@ func Authenticate(next buffalo.Handler) buffalo.Handler {
 
 		idToken := c.Request().Header.Get("Authorization")
 		idToken = strings.Replace(idToken, `bearer `, "", 1)
-		if ENV == "development" {
+		if ENV == "development" || ENV == "test" {
 			fmt.Println("Authorization", idToken)
 		}
-
 		token, err := client.VerifyIDToken(idToken)
 		if err != nil {
 			fmt.Printf("error verifying ID token: %v\n", err)

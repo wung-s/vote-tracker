@@ -21,7 +21,13 @@ func InitializeFirebase() error {
 	err := errors.New("Placeholder error")
 
 	box := packr.NewBox("../config")
-	content := box.Bytes(os.Getenv("FB_SERVICE_AC_KEY"))
+
+	content := []byte{}
+	if ENV == "test" {
+		content = box.Bytes("serviceAccountKey.json")
+	} else {
+		content = box.Bytes(os.Getenv("FB_SERVICE_AC_KEY"))
+	}
 
 	fileName := "firebaseKey.json"
 	if err := ioutil.WriteFile(fileName, content, 0644); err != nil {

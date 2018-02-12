@@ -88,8 +88,8 @@
 [[projects]]
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "e75b84227ebcc6713f8bfd1a4d154a1c005ded1c"
-  version = "v1.10.1"
+  revision = "64c3dd439b5efc5cd9fb69a8fb209a03cd7c5b86"
+  version = "v1.10.3"
 
 [[projects]]
   name = "github.com/gobuffalo/plush"
@@ -296,7 +296,6 @@
   revision = "6d1ef893fcb01b4f50cb6e57ed7df3e2e627b6b2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
@@ -466,6 +465,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8c3b446b8df5a01f9e94f3dd79e765243df59032b0d56c2156a2be00c57d1d4b"
+  inputs-digest = "652df02024eebf9ddab25ee9faf2d57c0bbf812d80e4974ff12a03f18abb406a"
   solver-name = "gps-cdcl"
   solver-version = 1
