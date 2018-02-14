@@ -37,13 +37,13 @@ type MembersResource struct {
 
 // MembersViewSearchResult will contain the result of search along with pagination information
 type MembersViewSearchResult struct {
-	models.MembersView `json:"members"`
-	Page               int `json:"page"`
-	PerPage            int `json:"perPage"`
-	Offset             int `json:"offset"`
-	TotalEntriesSize   int `json:"totalEntriesSize"`
-	CurrentEntriesSize int `json:"currentEntriesSize"`
-	TotalPages         int `json:"totalPages"`
+	Members            models.MembersView `json:"members"`
+	Page               int                `json:"page"`
+	PerPage            int                `json:"perPage"`
+	Offset             int                `json:"offset"`
+	TotalEntriesSize   int                `json:"totalEntriesSize"`
+	CurrentEntriesSize int                `json:"currentEntriesSize"`
+	TotalPages         int                `json:"totalPages"`
 }
 
 // MembersList gets all Members. This function is mapped to the path

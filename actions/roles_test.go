@@ -23,9 +23,7 @@ func seedRoles(db *pop.Connection) {
 
 func (as *ActionSuite) Test_RolesList() {
 	seedRoles(as.DB)
-	user := models.User{AuthID: "JNNIX7PSziRnwTATl0tTQh5rs9G2", Email: "test1@test.com"}
-	as.DB.Create(&user)
-
+	as.createUser()
 	as.setAuthorization()
 	dbRoles := models.Roles{}
 	as.DB.All(&dbRoles)
