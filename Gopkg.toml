@@ -75,3 +75,18 @@
 [[constraint]]
   name = "github.com/gobuffalo/packr"
   version = "v1.10.3"
+[[constraint]]
+  branch = "master"
+  name = "googlemaps.github.io/maps"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/mc2soft/pq-types"
+
+[[constraint]]
+  name = "github.com/garyburd/redigo"
+  version = "1.5.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/gobuffalo/gocraft-work-adapter"

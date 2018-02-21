@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/buffalo/worker"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -72,9 +73,9 @@ func MembersList(c buffalo.Context) error {
 	return c.Render(200, r.JSON(members))
 }
 
-// Show gets the data for one Member. This function is mapped to
+// MembersShow gets the data for one Member. This function is mapped to
 // the path GET /members/{member_id}
-func (v MembersResource) Show(c buffalo.Context) error {
+func MembersShow(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -85,7 +86,7 @@ func (v MembersResource) Show(c buffalo.Context) error {
 	member := &models.Member{}
 
 	// To find the Member the parameter member_id is used.
-	if err := tx.Find(member, c.Param("member_id")); err != nil {
+	if err := tx.Find(member, c.Param("id")); err != nil {
 		return c.Error(404, err)
 	}
 
@@ -126,8 +127,6 @@ func (v MembersResource) Create(c buffalo.Context) error {
 // MembersUpload seeds a Members to the DB. This function is mapped to the
 // path POST /members/upload
 func MembersUpload(c buffalo.Context) error {
-	// Allocate an empty Member
-
 	type UploadParams struct {
 		File string `db:"-"`
 	}
@@ -247,7 +246,11 @@ func MembersUpload(c buffalo.Context) error {
 		}
 
 		if i != 0 {
-			insertMember(member, tx)
+			id, err := insertMember(member, tx)
+			if err == nil {
+				geoCodeAddress(id, member.Address())
+			}
+
 		}
 		i++
 	}
@@ -255,6 +258,17 @@ func MembersUpload(c buffalo.Context) error {
 	os.Remove(fileName)
 
 	return c.Render(201, r.JSON("data processing complete"))
+}
+
+func geoCodeAddress(memberID uuid.UUID, address string) {
+	w.Perform(worker.Job{
+		Queue:   "default",
+		Handler: "geocode_address",
+		Args: worker.Args{
+			"memberID": memberID.String(),
+			"address":  address,
+		},
+	})
 }
 
 func setPollID(pollName string, member *models.Member, tx *pop.Connection) {
@@ -294,13 +308,16 @@ func insertRecruiter(r *models.Recruiter, tx *pop.Connection) {
 }
 
 // insertMember creates new member row in the DB
-func insertMember(member *models.Member, tx *pop.Connection) {
+func insertMember(member *models.Member, tx *pop.Connection) (uuid.UUID, error) {
 	verrs, err := tx.ValidateAndSave(member)
+	id := member.ID
 	member.ID = uuid.UUID{}
 
 	if err != nil {
 		fmt.Print(verrs)
 	}
+
+	return id, err
 }
 
 // Edit default implementation. Returns a 404

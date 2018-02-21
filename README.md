@@ -42,6 +42,7 @@ If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you 
     $ heroku config:set TWILIO_AUTH_TOKEN=f57fbe7303e5dxxxxxxx4eafbf6796
     $ heroku config:set TWILIO_NO=+0123456789
     $ heroku config:set FB_SERVICE_AC_KEY=serviceAccountKey.json
+    $ heroku config:set GOOGLE_MAPS_KEY=xxxxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxx
 
 ### Deployment
 

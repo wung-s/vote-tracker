@@ -3,29 +3,32 @@ package models
 import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop"
+	pgTypes "github.com/mc2soft/pq-types"
+
 	uuid "github.com/satori/go.uuid"
 )
 
 // MemberView is the same as Member
 type MemberView struct {
-	ID             uuid.UUID `json:"id" db:"id"`
-	FirstName      string    `json:"firstName" db:"first_name"`
-	LastName       string    `json:"lastName" db:"last_name"`
-	VoterID        string    `json:"voterId" db:"voter_id"`
-	UnitNumber     string    `json:"unitNumber" db:"unit_number"`
-	StreetNumber   string    `json:"streetNumber" db:"street_number"`
-	StreetName     string    `json:"streetName" db:"street_name"`
-	City           string    `json:"city" db:"city"`
-	State          string    `json:"state" db:"state"`
-	PostalCode     string    `json:"postalCode" db:"postal_code"`
-	HomePhone      string    `json:"homePhone" db:"home_phone"`
-	CellPhone      string    `json:"cellPhone" db:"cell_phone"`
-	Recruiter      string    `json:"recruiter" db:"recruiter"`
-	RecruiterID    uuid.UUID `json:"recruiterId" db:"recruiter_id"`
-	PollID         uuid.UUID `json:"pollId" db:"poll_id"`
-	Supporter      bool      `json:"supporter" db:"supporter"`
-	Voted          bool      `json:"voted" db:"voted"`
-	RecruiterPhone string    `json:"recruiterPhone" db:"recruiter_phone"`
+	ID             uuid.UUID            `json:"id" db:"id"`
+	FirstName      string               `json:"firstName" db:"first_name"`
+	LastName       string               `json:"lastName" db:"last_name"`
+	VoterID        string               `json:"voterId" db:"voter_id"`
+	UnitNumber     string               `json:"unitNumber" db:"unit_number"`
+	StreetNumber   string               `json:"streetNumber" db:"street_number"`
+	StreetName     string               `json:"streetName" db:"street_name"`
+	City           string               `json:"city" db:"city"`
+	State          string               `json:"state" db:"state"`
+	PostalCode     string               `json:"postalCode" db:"postal_code"`
+	HomePhone      string               `json:"homePhone" db:"home_phone"`
+	CellPhone      string               `json:"cellPhone" db:"cell_phone"`
+	Recruiter      string               `json:"recruiter" db:"recruiter"`
+	RecruiterID    uuid.UUID            `json:"recruiterId" db:"recruiter_id"`
+	PollID         uuid.UUID            `json:"pollId" db:"poll_id"`
+	Supporter      bool                 `json:"supporter" db:"supporter"`
+	Voted          bool                 `json:"voted" db:"voted"`
+	RecruiterPhone string               `json:"recruiterPhone" db:"recruiter_phone"`
+	LatLng         pgTypes.PostGISPoint `json:"latlng" db:"latlng"`
 }
 
 type MembersView []MemberView

@@ -11,10 +11,12 @@ import (
 	"github.com/gobuffalo/packr"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
+	"googlemaps.github.io/maps"
 )
 
 // FirebaseApp holds the connection to Firebase, used for authentication
 var FirebaseApp *firebase.App
+var gMap *maps.Client
 
 // InitializeFirebase set up firebase
 func InitializeFirebase() error {
@@ -38,8 +40,18 @@ func InitializeFirebase() error {
 
 	FirebaseApp, err = firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		log.Fatalf("error initializing app: %v\n", err)
+		log.Fatalf("error initializing Firebase: %v\n", err)
 	}
 
+	return err
+}
+
+// InitializeGoogleMaps instantiates an app-wide Google maps client
+func InitializeGoogleMaps() error {
+	err := errors.New("")
+	gMap, err = maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_MAPS_KEY")))
+	if err != nil {
+		log.Fatalf("error initializing Google Maps: %v\n", err)
+	}
 	return err
 }
