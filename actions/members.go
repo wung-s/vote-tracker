@@ -166,12 +166,17 @@ func MembersUpload(c buffalo.Context) error {
 	csvFile, _ := os.Open(fileName)
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
+	// Necessary to use a manually created transaction as opposed
+	// to using the one from Pop middleware as we need to manually
+	// commit the transaction before calling the workers
+	tx, err := models.DB.NewTransaction()
+	if err != nil {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
+	// tx := models.DB
 
 	i := 0
+	memberIDs := []uuid.UUID{}
 	for {
 		line, error := reader.Read()
 		if error == io.EOF {
@@ -247,28 +252,33 @@ func MembersUpload(c buffalo.Context) error {
 
 		if i != 0 {
 			id, err := insertMember(member, tx)
-			if err == nil {
-				geoCodeAddress(id, member.Address())
+			if err != nil {
+				return errors.WithStack(err)
 			}
 
+			memberIDs = append(memberIDs, id)
 		}
 		i++
 	}
 
 	os.Remove(fileName)
-
+	// transaction must be committed so that the newly created data is persisted in the
+	// DB when it's queried through the worker
+	tx.TX.Commit()
+	geoCodeAddress(memberIDs)
 	return c.Render(201, r.JSON("data processing complete"))
 }
 
-func geoCodeAddress(memberID uuid.UUID, address string) {
-	w.Perform(worker.Job{
-		Queue:   "default",
-		Handler: "geocode_address",
-		Args: worker.Args{
-			"memberID": memberID.String(),
-			"address":  address,
-		},
-	})
+func geoCodeAddress(memberIDs []uuid.UUID) {
+	for _, id := range memberIDs {
+		w.Perform(worker.Job{
+			Queue:   "default",
+			Handler: "geocode_address",
+			Args: worker.Args{
+				"memberID": id.String(),
+			},
+		})
+	}
 }
 
 func setPollID(pollName string, member *models.Member, tx *pop.Connection) {

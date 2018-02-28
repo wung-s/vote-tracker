@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
-	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 	"github.com/wung-s/gotv/models"
 	"golang.org/x/net/context"
@@ -44,7 +43,7 @@ func Authenticate(next buffalo.Handler) buffalo.Handler {
 }
 
 func setCurrentUser(uid string, c buffalo.Context) error {
-	tx := c.Value("tx").(*pop.Connection)
+	tx := models.DB
 	user := &models.User{}
 	err := tx.Where("auth_id = ?", uid).First(user)
 

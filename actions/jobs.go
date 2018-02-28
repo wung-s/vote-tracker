@@ -3,6 +3,8 @@ package actions
 import (
 	"fmt"
 
+	"github.com/satori/go.uuid"
+
 	"github.com/gobuffalo/buffalo/worker"
 	pgTypes "github.com/mc2soft/pq-types"
 	"github.com/wung-s/gotv/models"
@@ -16,21 +18,22 @@ func init() {
 	w = worker.NewSimple()
 	w.Register("geocode_address", func(args worker.Args) error {
 		memberID := fmt.Sprint(args["memberID"])
-		address := fmt.Sprint(args["address"])
 
 		tx := models.DB
 		member := &models.Member{}
-		if err := tx.Find(member, memberID); err != nil {
+		id, err := uuid.FromString(memberID)
+		if err := tx.Find(member, id); err != nil {
 			return err
 		}
 
 		gr := &maps.GeocodingRequest{
-			Address: address,
+			Address: member.Address(),
 		}
 
 		resp, err := gMap.Geocode(context.Background(), gr)
 		if err != nil {
 			fmt.Print("Error geocoding", err)
+			return err
 		}
 
 		coords := resp[0].Geometry.Location

@@ -43,7 +43,13 @@ func (m Member) String() string {
 
 // Address returns the derived full address
 func (m Member) Address() string {
-	return m.UnitNumber + " " + m.StreetNumber + " " + m.StreetName
+	addr := m.UnitNumber + " "
+	addr += m.StreetNumber + " "
+	addr += m.StreetName + " "
+	addr += m.City + " "
+	addr += m.State + " "
+	addr += m.PostalCode
+	return addr
 }
 
 // Members is not required by pop and may be deleted

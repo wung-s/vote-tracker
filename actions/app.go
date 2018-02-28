@@ -60,23 +60,25 @@ func App() *buffalo.App {
 
 		InitializeFirebase()
 		InitializeGoogleMaps()
-		app.Use(middleware.PopTransaction(models.DB))
 
+		// Wraps each request in a transaction.
+		//  c.Value("tx").(*pop.PopTransaction)
+		// Remove to disable this.
+		tx := middleware.PopTransaction(models.DB)
+
+		app.Use(tx)
 		app.Use(Authenticate)
+
 		app.Middleware.Skip(Authenticate, HomeHandler)
 		app.Middleware.Skip(Authenticate, RecruitersMembersSearch)
 		app.Middleware.Skip(Authenticate, RecruitersShow)
-
+		app.Middleware.Skip(tx, MembersUpload)
 		// Set the request content type to JSON
 		app.Use(middleware.SetContentType("application/json"))
 
 		if ENV == "development" {
 			app.Use(middleware.ParameterLogger)
 		}
-
-		// Wraps each request in a transaction.
-		//  c.Value("tx").(*pop.PopTransaction)
-		// Remove to disable this.
 
 		app.GET("/", HomeHandler)
 
