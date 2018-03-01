@@ -12,9 +12,9 @@ import (
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/worker"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
+	uuid "github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 	"github.com/sfreiberg/gotwilio"
 	"github.com/wung-s/gotv/models"
 )

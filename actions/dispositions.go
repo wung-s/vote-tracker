@@ -2,9 +2,9 @@ package actions
 
 import (
 	"github.com/gobuffalo/buffalo"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
+	uuid "github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 	"github.com/wung-s/gotv/models"
 )
 

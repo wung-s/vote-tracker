@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/gobuffalo/buffalo"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"github.com/wung-s/gotv/models"
 )

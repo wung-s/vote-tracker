@@ -8,10 +8,10 @@ import (
 
 	"firebase.google.com/go/auth"
 	"github.com/gobuffalo/buffalo"
-	"github.com/markbates/pop"
-	"github.com/markbates/pop/nulls"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/nulls"
+	uuid "github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 	"github.com/wung-s/gotv/models"
 	"golang.org/x/net/context"
 )

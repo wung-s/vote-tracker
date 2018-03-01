@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
 )
 
 type UserRole struct {

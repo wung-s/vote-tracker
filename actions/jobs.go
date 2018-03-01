@@ -3,7 +3,7 @@ package actions
 import (
 	"fmt"
 
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/gobuffalo/buffalo/worker"
 	pgTypes "github.com/mc2soft/pq-types"

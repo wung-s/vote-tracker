@@ -2,10 +2,10 @@ package models
 
 import (
 	"github.com/gobuffalo/buffalo"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	pgTypes "github.com/mc2soft/pq-types"
 
-	uuid "github.com/satori/go.uuid"
+	uuid "github.com/gobuffalo/uuid"
 )
 
 // MemberView is the same as Member
@@ -35,12 +35,6 @@ type MembersView []MemberView
 
 // TableName allows a different table tname to be specified
 func (MemberView) TableName() string {
-	return "members_view"
-}
-
-// This can be removed once https://github.com/markbates/pop/pull/192 is merged in
-//  and package is updated accordingly
-func (MembersView) TableName() string {
 	return "members_view"
 }
 

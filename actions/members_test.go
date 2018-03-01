@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 
 	"github.com/wung-s/gotv/models"
 )

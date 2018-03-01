@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 
 	"github.com/wung-s/gotv/models"
 )
