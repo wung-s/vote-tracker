@@ -1,0 +1,3 @@
+drop_index("electoral_districts", "electoral_districts_geom_idx")
+drop_index("electoral_districts", "electoral_districts_edid_idx")
+drop_table("electoral_districts")

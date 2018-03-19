@@ -176,6 +176,22 @@ CREATE TABLE dispositions (
 ALTER TABLE dispositions OWNER TO postgres;
 
 --
+-- Name: electoral_districts; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE electoral_districts (
+    id uuid NOT NULL,
+    name character varying(255) DEFAULT ''::character varying NOT NULL,
+    edid integer,
+    shape_area numeric,
+    shape_length numeric,
+    geom geometry(Polygon,4326) NOT NULL
+);
+
+
+ALTER TABLE electoral_districts OWNER TO postgres;
+
+--
 -- Name: members; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -237,6 +253,21 @@ CREATE VIEW members_view AS
 
 
 ALTER TABLE members_view OWNER TO postgres;
+
+--
+-- Name: polling_divisions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE polling_divisions (
+    id uuid NOT NULL,
+    edid integer,
+    no integer,
+    shape_area numeric,
+    shape_length numeric
+);
+
+
+ALTER TABLE polling_divisions OWNER TO postgres;
 
 --
 -- Name: polls; Type: TABLE; Schema: public; Owner: postgres
@@ -349,11 +380,27 @@ ALTER TABLE ONLY dispositions
 
 
 --
+-- Name: electoral_districts electoral_districts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY electoral_districts
+    ADD CONSTRAINT electoral_districts_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: members members_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY members
     ADD CONSTRAINT members_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: polling_divisions polling_divisions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY polling_divisions
+    ADD CONSTRAINT polling_divisions_pkey PRIMARY KEY (id);
 
 
 --
@@ -402,6 +449,20 @@ ALTER TABLE ONLY user_roles
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: electoral_districts_edid_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX electoral_districts_edid_idx ON electoral_districts USING btree (edid);
+
+
+--
+-- Name: electoral_districts_geom_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX electoral_districts_geom_idx ON electoral_districts USING gist (geom);
 
 
 --

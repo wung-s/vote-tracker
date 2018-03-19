@@ -15,6 +15,13 @@ changes to `grifts/db.go` before running the seed command
 
     $ buffalo task db:seed
 
+### Import Electoral District and Polling Division
+
+* manually import `electoral_districts.csv` directly into electoral_districts table
+* manually import `polling_divisions.csv` directly into polling_divisions table
+
+Note: both the files are stored in AmazonS3 > rallychq
+
 ## Set Application Service Keys
 
 The keys for services like Auth0 & Twilio can be set in the `.env` file found in the root of the
@@ -43,6 +50,12 @@ If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you 
     $ heroku config:set TWILIO_NO=+0123456789
     $ heroku config:set FB_SERVICE_AC_KEY=serviceAccountKey.json
     $ heroku config:set GOOGLE_MAPS_KEY=xxxxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxx
+
+### Enable [Postgis](https://postgis.net/install/)
+
+    $ heroku pg:psql
+    $ CREATE EXTENSION postgis;
+    $ CREATE EXTENSION postgis_topology;
 
 ### Deployment
 

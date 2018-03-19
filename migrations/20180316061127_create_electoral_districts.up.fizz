@@ -1,0 +1,15 @@
+create_table("electoral_districts", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("name", "string", {"default": ""})
+	t.Column("edid", "integer", {"null": false})
+})
+
+drop_column("electoral_districts", "created_at")
+drop_column("electoral_districts", "updated_at")
+
+raw("ALTER TABLE electoral_districts ADD COLUMN shape_area numeric;")
+raw("ALTER TABLE electoral_districts ADD COLUMN shape_length numeric;")
+raw("ALTER TABLE electoral_districts ADD COLUMN geom geometry(POLYGON, 4326) NOT NULL;")
+
+raw("CREATE INDEX electoral_districts_geom_idx ON electoral_districts USING GIST (geom);")
+add_index("electoral_districts", "edid", {"unique": true})

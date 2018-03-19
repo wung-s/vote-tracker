@@ -90,3 +90,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/gobuffalo/gocraft-work-adapter"
+
+[[constraint]]
+  name = "github.com/paulmach/go.geojson"
+  version = "1.3.1"
