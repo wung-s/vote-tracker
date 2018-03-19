@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/base64"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -127,6 +128,7 @@ func (v MembersResource) Create(c buffalo.Context) error {
 // MembersUpload seeds a Members to the DB. This function is mapped to the
 // path POST /members/upload
 func MembersUpload(c buffalo.Context) error {
+	fmt.Println("MemberUPlaod::::::::")
 	type UploadParams struct {
 		File string `db:"-"`
 	}
@@ -270,15 +272,15 @@ func MembersUpload(c buffalo.Context) error {
 }
 
 func geoCodeAddress(memberIDs []uuid.UUID) {
-	for _, id := range memberIDs {
-		w.Perform(worker.Job{
-			Queue:   "default",
-			Handler: "geocode_address",
-			Args: worker.Args{
-				"memberID": id.String(),
-			},
-		})
-	}
+	jm, _ := json.Marshal(memberIDs)
+
+	w.Perform(worker.Job{
+		Queue:   "default",
+		Handler: "geocode_address",
+		Args: worker.Args{
+			"memberIds": string(jm),
+		},
+	})
 }
 
 func setPollID(pollName string, member *models.Member, tx *pop.Connection) {
