@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"os"
+
 	"github.com/garyburd/redigo/redis"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/middleware"
@@ -45,7 +47,7 @@ func App() *buffalo.App {
 					MaxIdle:   5,
 					Wait:      true,
 					Dial: func() (redis.Conn, error) {
-						return redis.Dial("tcp", ":6379")
+						return redis.Dial("tcp", os.Getenv("REDIS_URL"))
 					},
 				},
 				Name:           "gotv",
