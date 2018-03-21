@@ -1,0 +1,2 @@
+drop_column("electoral_districts", "geom")
+raw("ALTER TABLE electoral_districts ADD COLUMN geom geometry(POLYGON, 4326) NOT NULL;")

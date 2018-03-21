@@ -185,7 +185,7 @@ CREATE TABLE electoral_districts (
     edid integer,
     shape_area numeric,
     shape_length numeric,
-    geom geometry(Polygon,4326) NOT NULL
+    geom geometry(Geometry,4326) NOT NULL
 );
 
 
@@ -263,7 +263,8 @@ CREATE TABLE polling_divisions (
     edid integer,
     no integer,
     shape_area numeric,
-    shape_length numeric
+    shape_length numeric,
+    geom geometry(Geometry,4326) NOT NULL
 );
 
 
@@ -456,13 +457,6 @@ ALTER TABLE ONLY users
 --
 
 CREATE UNIQUE INDEX electoral_districts_edid_idx ON electoral_districts USING btree (edid);
-
-
---
--- Name: electoral_districts_geom_idx; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE INDEX electoral_districts_geom_idx ON electoral_districts USING gist (geom);
 
 
 --
