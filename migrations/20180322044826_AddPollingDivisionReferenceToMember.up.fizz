@@ -1,0 +1,6 @@
+add_column("members", "polling_division_id", "uuid", {"null": true})
+add_foreign_key("members", "polling_division_id", {"polling_divisions": ["id"]}, {
+    "on_delete": "SET NULL",
+})
+
+add_index("members", "polling_division_id", {})

@@ -1,0 +1,3 @@
+drop_index("members", "members_polling_division_id_idx")
+drop_foreign_key("members", "members_polling_divisions_id_fk", {"if_exists": true})
+drop_column("members", "polling_division_id")

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/buffalo/worker"
+	"github.com/gobuffalo/pop/nulls"
 	uuid "github.com/gobuffalo/uuid"
 	pgTypes "github.com/mc2soft/pq-types"
 	"github.com/wung-s/gotv/models"
@@ -19,7 +20,7 @@ func init() {
 	w.Register("geocode_address", func(args worker.Args) error {
 		var memberIDs []uuid.UUID
 		if err := json.Unmarshal([]byte(fmt.Sprint(args["memberIds"])), &memberIDs); err != nil {
-			fmt.Println("Error obtaining memberIDs", err)
+			fmt.Println(err)
 			return err
 		}
 
@@ -36,15 +37,35 @@ func init() {
 
 			resp, err := gMap.Geocode(context.Background(), gr)
 			if err != nil {
-				fmt.Print("Error geocoding", err)
+				fmt.Print(err)
 				return err
 			}
 
 			coords := resp[0].Geometry.Location
+
+			sql := `select id from polling_divisions
+     					where ST_Contains(polling_divisions.geom, ST_GeomFromText(?,4326))`
+			point := fmt.Sprintf("POINT(%v %v)", coords.Lng, coords.Lat)
+
+			result := struct {
+				ID nulls.UUID
+			}{}
+			var exist bool
+			if exist, err = tx.RawQuery(sql, point).Exists(&result); err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			if exist {
+				tx.RawQuery(sql, point).First(&result)
+				member.PollingDivisionID = result.ID
+			}
+
 			member.LatLng = pgTypes.PostGISPoint{Lon: coords.Lng, Lat: coords.Lat}
 			if _, err = tx.ValidateAndUpdate(member); err != nil {
 				return err
 			}
+
 		}
 		return nil
 	})

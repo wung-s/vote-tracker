@@ -128,7 +128,6 @@ func (v MembersResource) Create(c buffalo.Context) error {
 // MembersUpload seeds a Members to the DB. This function is mapped to the
 // path POST /members/upload
 func MembersUpload(c buffalo.Context) error {
-	fmt.Println("MemberUPlaod::::::::")
 	type UploadParams struct {
 		File string `db:"-"`
 	}

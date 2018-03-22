@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 	"time"
-
+	"github.com/gobuffalo/pop/nulls"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
@@ -29,6 +29,7 @@ type Member struct {
 	Recruiter      string               `json:"recruiter" db:"recruiter"`
 	RecruiterID    uuid.UUID            `json:"recruiterId" db:"recruiter_id"`
 	PollID         uuid.UUID            `json:"pollId" db:"poll_id"`
+	PollingDivisionID         nulls.UUID            `json:"pollingDivisionId" db:"polling_division_id"`
 	Supporter      bool                 `json:"supporter" db:"supporter"`
 	Voted          bool                 `json:"voted" db:"voted"`
 	RecruiterPhone string               `json:"recruiterPhone" db:"recruiter_phone"`

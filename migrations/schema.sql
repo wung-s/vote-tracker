@@ -216,7 +216,8 @@ CREATE TABLE members (
     voted boolean DEFAULT false NOT NULL,
     recruiter character varying(255) DEFAULT ''::character varying NOT NULL,
     recruiter_id uuid NOT NULL,
-    latlng geometry(Point,4326)
+    latlng geometry(Point,4326),
+    polling_division_id uuid
 );
 
 
@@ -460,6 +461,13 @@ CREATE UNIQUE INDEX electoral_districts_edid_idx ON electoral_districts USING bt
 
 
 --
+-- Name: members_polling_division_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX members_polling_division_id_idx ON members USING btree (polling_division_id);
+
+
+--
 -- Name: polls_name_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -515,6 +523,14 @@ ALTER TABLE ONLY dispositions
 
 ALTER TABLE ONLY members
     ADD CONSTRAINT members_poll_id_fkey FOREIGN KEY (poll_id) REFERENCES polls(id);
+
+
+--
+-- Name: members members_polling_divisions_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY members
+    ADD CONSTRAINT members_polling_divisions_id_fk FOREIGN KEY (polling_division_id) REFERENCES polling_divisions(id) ON DELETE SET NULL;
 
 
 --
