@@ -1,14 +1,10 @@
 package actions
 
 import (
-	"os"
-
-	"github.com/garyburd/redigo/redis"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/middleware"
 	"github.com/gobuffalo/buffalo/middleware/ssl"
 	"github.com/gobuffalo/envy"
-	gwa "github.com/gobuffalo/gocraft-work-adapter"
 	"github.com/gobuffalo/x/sessions"
 	"github.com/rs/cors"
 	"github.com/unrolled/secure"
@@ -41,18 +37,19 @@ func App() *buffalo.App {
 			SessionStore: sessions.Null{},
 			SessionName:  "_gotv_session",
 			PreWares:     []buffalo.PreWare{c.Handler},
-			Worker: gwa.New(gwa.Options{
-				Pool: &redis.Pool{
-					MaxActive: 5,
-					MaxIdle:   5,
-					Wait:      true,
-					Dial: func() (redis.Conn, error) {
-						return redis.Dial("tcp", os.Getenv("REDIS_URL"))
-					},
-				},
-				Name:           "gotv",
-				MaxConcurrency: 25,
-			}),
+			// Uncomment and fix the issue with Redis URL for Redis-based background job
+			// Worker: gwa.New(gwa.Options{
+			// 	Pool: &redis.Pool{
+			// 		MaxActive: 5,
+			// 		MaxIdle:   5,
+			// 		Wait:      true,
+			// 		Dial: func() (redis.Conn, error) {
+			// 			return redis.Dial("tcp", os.Getenv("REDIS_URL"))
+			// 		},
+			// 	},
+			// 	Name:           "gotv",
+			// 	MaxConcurrency: 25,
+			// }),
 		})
 		// Automatically redirect to SSL
 		app.Use(ssl.ForceSSL(secure.Options{
