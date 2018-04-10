@@ -1,6 +1,8 @@
 package grifts
 
 import (
+	"fmt"
+
 	"github.com/markbates/grift/grift"
 	"github.com/wung-s/gotv/models"
 )
@@ -26,17 +28,23 @@ func addUser(email string, auth0ID string, role string) {
 		AuthID: auth0ID,
 	}
 
-	models.DB.Create(u)
-
-	rs := &models.Roles{}
-	models.DB.Where("name = ?", role).All(rs)
-
-	ur := &models.UserRole{
-		UserID: u.ID,
-		RoleID: (*rs)[0].ID,
+	if err := models.DB.Create(u); err != nil {
+		fmt.Println("could not add role:", err)
 	}
 
-	models.DB.Create(ur)
+	rs := &models.Role{}
+	if err := models.DB.Where("name = ?", role).First(rs); err != nil {
+		fmt.Println("role NOT found", err)
+	}
+	fmt.Println("role is: ", *rs)
+	ur := &models.UserRole{
+		UserID: u.ID,
+		RoleID: (*rs).ID,
+	}
+
+	if err := models.DB.Create(ur); err != nil {
+		fmt.Println("could not add user role:", err)
+	}
 }
 
 func addRole(role string) {
@@ -44,5 +52,7 @@ func addRole(role string) {
 		Name: role,
 	}
 
-	models.DB.Create(r)
+	if err := models.DB.Create(r); err != nil {
+		fmt.Println("could not create role", err)
+	}
 }
