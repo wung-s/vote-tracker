@@ -174,10 +174,11 @@ func MembersUpload(c buffalo.Context) error {
 	if err != nil {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
-	// tx := models.DB
 
 	i := 0
 	memberIDs := []uuid.UUID{}
+	fileHeaders := []string{}
+
 	for {
 		line, error := reader.Read()
 		if error == io.EOF {
@@ -193,29 +194,24 @@ func MembersUpload(c buffalo.Context) error {
 			}
 		}
 
+		rowData := map[string]string{}
+		if i == 0 {
+			fileHeaders = cleanFileHeader(line)
+		} else {
+			for k, v := range fileHeaders {
+				rowData[v] = strings.TrimSpace(line[k])
+			}
+		}
+
 		// Exit the loop if the values in a row are all blank
 		if atEnd {
 			break
 		}
 
-		member := &models.Member{
-			VoterID:        strings.TrimSpace(line[0]),
-			LastName:       strings.TrimSpace(line[1]),
-			FirstName:      strings.TrimSpace(line[2]),
-			UnitNumber:     strings.TrimSpace(line[3]),
-			StreetNumber:   strings.TrimSpace(line[4]),
-			StreetName:     strings.TrimSpace(line[5]),
-			City:           strings.TrimSpace(line[6]),
-			State:          strings.TrimSpace(line[7]),
-			PostalCode:     strings.TrimSpace(line[8]),
-			HomePhone:      strings.TrimSpace(line[9]),
-			CellPhone:      strings.TrimSpace(line[10]),
-			Recruiter:      strings.TrimSpace(line[11]),
-			RecruiterPhone: strings.TrimSpace(line[13]),
-			Supporter:      strings.TrimSpace(line[14]) == ("TRUE") || strings.TrimSpace(line[14]) == ("true"),
-		}
+		member := &models.Member{}
+		member.InitializeFromMapString(rowData)
 
-		pollName := strings.TrimSpace(line[12])
+		pollName := strings.TrimSpace(rowData["poll_id"])
 		exist, err := tx.Where("name = ?", pollName).Exists(&models.Poll{})
 		if err != nil {
 			return errors.WithStack(err)
@@ -232,8 +228,8 @@ func MembersUpload(c buffalo.Context) error {
 			setPollID(pollName, member, tx)
 		}
 
-		rPhone := strings.TrimSpace(line[13])
-		rName := strings.TrimSpace(line[11])
+		rPhone := strings.TrimSpace(rowData["recruiter_phone"])
+		rName := strings.TrimSpace(rowData["recruiter_phone"])
 		exist, err = tx.Where("phone_no = ?", rPhone).Exists("recruiters")
 		if err != nil {
 			return errors.WithStack(err)
@@ -268,6 +264,15 @@ func MembersUpload(c buffalo.Context) error {
 	tx.TX.Commit()
 	geoCodeAddress(memberIDs)
 	return c.Render(201, r.JSON("data processing complete"))
+}
+
+// remove any leading/trailing whitespace to avoid key mismatch
+func cleanFileHeader(arr []string) []string {
+	result := []string{}
+	for _, v := range arr {
+		result = append(result, strings.TrimSpace(v))
+	}
+	return result
 }
 
 func geoCodeAddress(memberIDs []uuid.UUID) {
