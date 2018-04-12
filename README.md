@@ -1,3 +1,5 @@
+IMPORTANT: Internet connection is necessary in order to get the project up and running
+
 ## Database Setup
 
 ### Create Databases
@@ -10,10 +12,9 @@
 
 ### Seed Database
 
-**Important**: Please create the user manually from Auth0 and make the necessary
-changes to `grifts/db.go` before running the seed command
-
     $ buffalo task db:seed
+
+Note: A `manager` user will be created through this task
 
 ### Import Electoral District and Polling Division
 
@@ -24,11 +25,11 @@ Note: both the files are stored in AmazonS3 > rallychq
 
 ## Set Application Service Keys
 
-The keys for services like Auth0 & Twilio can be set in the `.env` file found in the root of the
+The keys for services like Twilio can be set in the `.env` file found in the root of the
 project
 
 ```
-//example content of .env
+// example content of .env
 
 TWILIO_AC_SID=AC23a19xxxxxxxxxxb60783eccfa4c2
 TWILIO_AUTH_TOKEN=f57fbe7303e5dxxxxxxx4eafbf6796
@@ -45,11 +46,14 @@ If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you 
 
 ### Set Environment Variables
 
+    $ heroku config:set GO_ENV=production
     $ heroku config:set TWILIO_AC_SID=AC23a19xxxxxxxxxxb60783eccfa4c2
     $ heroku config:set TWILIO_AUTH_TOKEN=f57fbe7303e5dxxxxxxx4eafbf6796
     $ heroku config:set TWILIO_NO=+0123456789
     $ heroku config:set FB_SERVICE_AC_KEY=serviceAccountKey.json
     $ heroku config:set GOOGLE_MAPS_KEY=xxxxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxx
+    $ heroku config:set MASTER_USER_EMAIL=test1@test.com
+    $ heroku config:set MASTER_USER_PW=ffffff
 
 ### Enable [Postgis](https://postgis.net/install/)
 

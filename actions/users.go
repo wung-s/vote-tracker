@@ -184,10 +184,7 @@ func UsersCreate(c buffalo.Context) error {
 
 	user.Email = userParams.Email
 
-	// token := getAuth0Token()
-
-	// auth0User, err := createAuth0User(token, user.Email, userParams.Pw)
-	fbUserID, err := createFbUser(user.Email, userParams.Pw)
+	fbUserID, err := CreateFbUser(user.Email, userParams.Pw)
 	if err != nil {
 		fmt.Println(err)
 		return errors.WithStack(err)
@@ -221,7 +218,7 @@ func UsersCreate(c buffalo.Context) error {
 	return c.Render(201, r.JSON(user))
 }
 
-func createFbUser(email string, password string) (string, error) {
+func CreateFbUser(email string, password string) (string, error) {
 	client, err := FirebaseApp.Auth(context.Background())
 	params := (&auth.UserToCreate{}).
 		Email(email).
