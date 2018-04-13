@@ -48,6 +48,10 @@ func (msv MembersView) FilterFromParam(q *pop.Query, c buffalo.Context) error {
 		q = q.Where("street_name = ?", c.Param("street_name"))
 	}
 
+	if c.Param("street_number") != "" {
+		q = q.Where("street_number = ?", c.Param("street_number"))
+	}
+
 	if c.Param("poll_id") != "" {
 		q = q.Where("poll_id = ?", c.Param("poll_id"))
 	}
