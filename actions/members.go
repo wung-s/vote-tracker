@@ -229,7 +229,7 @@ func MembersUpload(c buffalo.Context) error {
 		}
 
 		rPhone := strings.TrimSpace(rowData["recruiter_phone"])
-		rName := strings.TrimSpace(rowData["recruiter_phone"])
+		rName := strings.TrimSpace(rowData["recruiter"])
 		exist, err = tx.Where("phone_no = ?", rPhone).Exists("recruiters")
 		if err != nil {
 			return errors.WithStack(err)

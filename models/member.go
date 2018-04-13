@@ -87,14 +87,11 @@ func (m *Member) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: m.FirstName, Name: "FirstName"},
 		&validators.StringIsPresent{Field: m.LastName, Name: "LastName"},
-		&validators.StringIsPresent{Field: m.VoterID, Name: "VoterID"},
 		&validators.StringIsPresent{Field: m.StreetNumber, Name: "StreetNumber"},
 		&validators.StringIsPresent{Field: m.StreetName, Name: "StreetName"},
 		&validators.StringIsPresent{Field: m.City, Name: "City"},
 		&validators.StringIsPresent{Field: m.State, Name: "State"},
 		&validators.StringIsPresent{Field: m.PostalCode, Name: "PostalCode"},
-		&validators.StringIsPresent{Field: m.HomePhone, Name: "HomePhone"},
-		&validators.StringIsPresent{Field: m.CellPhone, Name: "CellPhone"},
 		&validators.StringIsPresent{Field: m.Recruiter, Name: "Recruiter"},
 		&validators.StringIsPresent{Field: m.RecruiterPhone, Name: "RecruiterPhone"},
 	), nil
