@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/pop/nulls"
 	uuid "github.com/gobuffalo/uuid"
 	pgTypes "github.com/mc2soft/pq-types"
+	"github.com/pkg/errors"
 	"github.com/wung-s/gotv/models"
 	"golang.org/x/net/context"
 	"googlemaps.github.io/maps"
@@ -40,32 +41,34 @@ func init() {
 				fmt.Print(err)
 				return err
 			}
-
-			coords := resp[0].Geometry.Location
-
-			sql := `select id from polling_divisions
+			// check for if Google Maps API returned any geocode data for the supplied address
+			if len(resp) > 0 {
+				coords := resp[0].Geometry.Location
+				sql := `select id from polling_divisions
      					where ST_Contains(polling_divisions.geom, ST_GeomFromText(?,4326))`
-			point := fmt.Sprintf("POINT(%v %v)", coords.Lng, coords.Lat)
+				point := fmt.Sprintf("POINT(%v %v)", coords.Lng, coords.Lat)
 
-			result := struct {
-				ID nulls.UUID
-			}{}
-			var exist bool
-			if exist, err = tx.RawQuery(sql, point).Exists(&result); err != nil {
-				fmt.Println(err)
-				return err
+				result := struct {
+					ID nulls.UUID
+				}{}
+				var exist bool
+				if exist, err = tx.RawQuery(sql, point).Exists(&result); err != nil {
+					fmt.Println(err)
+					return err
+				}
+
+				if exist {
+					tx.RawQuery(sql, point).First(&result)
+					member.PollingDivisionID = result.ID
+				}
+
+				member.LatLng = pgTypes.PostGISPoint{Lon: coords.Lng, Lat: coords.Lat}
+				if _, err = tx.ValidateAndUpdate(member); err != nil {
+					return err
+				}
+			} else {
+				errors.New("No geocode information returned")
 			}
-
-			if exist {
-				tx.RawQuery(sql, point).First(&result)
-				member.PollingDivisionID = result.ID
-			}
-
-			member.LatLng = pgTypes.PostGISPoint{Lon: coords.Lng, Lat: coords.Lat}
-			if _, err = tx.ValidateAndUpdate(member); err != nil {
-				return err
-			}
-
 		}
 		return nil
 	})
