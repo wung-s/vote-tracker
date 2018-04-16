@@ -199,7 +199,11 @@ func MembersUpload(c buffalo.Context) error {
 			fileHeaders = cleanFileHeader(line)
 		} else {
 			for k, v := range fileHeaders {
-				rowData[v] = strings.TrimSpace(line[k])
+				if v == "home_phone" || v == "cell_phone" || v == "recruiter_phone" {
+					rowData[v] = cleanUpPhoneNumber(line[k])
+				} else {
+					rowData[v] = strings.TrimSpace(line[k])
+				}
 			}
 		}
 
@@ -264,6 +268,11 @@ func MembersUpload(c buffalo.Context) error {
 	tx.TX.Commit()
 	geoCodeAddress(memberIDs)
 	return c.Render(201, r.JSON("data processing complete"))
+}
+
+func cleanUpPhoneNumber(str string) string {
+	str = strings.Replace(str, "-", "", -1)
+	return strings.TrimSpace(str)
 }
 
 // remove any leading/trailing whitespace to avoid key mismatch
