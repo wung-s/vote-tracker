@@ -40,6 +40,10 @@ func (MemberView) TableName() string {
 
 // FilterFromParam will apply filter from the query parameters
 func (msv MembersView) FilterFromParam(q *pop.Query, c buffalo.Context) error {
+	if c.Param("q") != "" {
+		q = q.Where("(address ILIKE ? OR full_name ILIKE ?)", "%"+c.Param("q")+"%", "%"+c.Param("q")+"%")
+	}
+
 	if c.Param("address") != "" {
 		q = q.Where("address ILIKE ?", "%"+c.Param("address")+"%")
 	}

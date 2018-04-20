@@ -449,7 +449,7 @@ func MembersSearch(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	if err := q.All(members); err != nil {
+	if err := q.Order("last_name").All(members); err != nil {
 		return c.Error(404, err)
 	}
 

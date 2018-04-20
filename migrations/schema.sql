@@ -249,6 +249,8 @@ CREATE VIEW members_view AS
     members.recruiter,
     members.recruiter_id,
     members.latlng,
+    members.polling_division_id,
+    concat_ws(' '::text, (members.first_name)::text, (members.last_name)::text) AS full_name,
     concat_ws(' '::text, (members.unit_number)::text, (members.street_number)::text, (members.street_name)::text) AS address
    FROM members;
 
