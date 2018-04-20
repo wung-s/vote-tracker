@@ -30,7 +30,8 @@ func init() {
 		for _, id := range memberIDs {
 			member := &models.Member{}
 			if err := tx.Find(member, id); err != nil {
-				return err
+				fmt.Println("Error finding member:", err)
+				continue
 			}
 			gr := &maps.GeocodingRequest{
 				Address: member.Address(),

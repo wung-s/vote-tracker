@@ -201,9 +201,12 @@ func MembersUpload(c buffalo.Context) error {
 			for k, v := range fileHeaders {
 				if v == "home_phone" || v == "cell_phone" || v == "recruiter_phone" {
 					rowData[v] = cleanUpPhoneNumber(line[k])
+				} else if v == "unit_number" {
+					rowData[v] = cleanUpUnitNumber(line[k])
 				} else {
 					rowData[v] = strings.TrimSpace(line[k])
 				}
+
 			}
 		}
 
@@ -268,6 +271,11 @@ func MembersUpload(c buffalo.Context) error {
 	tx.TX.Commit()
 	geoCodeAddress(memberIDs)
 	return c.Render(201, r.JSON("data processing complete"))
+}
+
+func cleanUpUnitNumber(str string) string {
+	str = strings.Replace(str, "0", "", -1)
+	return strings.TrimSpace(str)
 }
 
 func cleanUpPhoneNumber(str string) string {
