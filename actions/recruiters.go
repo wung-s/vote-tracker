@@ -41,37 +41,12 @@ func RecruitersList(c buffalo.Context) error {
 
 	recruiters := &models.Recruiters{}
 
-	// Paginate results. Params "page" and "per_page" control pagination.
-	// Default values are "page=1" and "per_page=20".
-	q := tx.PaginateFromParams(c.Params())
-
 	// Retrieve all Recruiters from the DB
-	if err := q.All(recruiters); err != nil {
+	if err := tx.All(recruiters); err != nil {
 		return errors.WithStack(err)
 	}
 
-	// Add the paginator to the headers so clients know how to paginate.
-	c.Response().Header().Set("X-Pagination", q.Paginator.String())
-
-	result := struct {
-		models.Recruiters  `json:"recruiters"`
-		Page               int `json:"page"`
-		PerPage            int `json:"perPage"`
-		Offset             int `json:"offset"`
-		TotalEntriesSize   int `json:"totalEntriesSize"`
-		CurrentEntriesSize int `json:"currentEntriesSize"`
-		TotalPages         int `json:"totalPages"`
-	}{
-		*recruiters,
-		q.Paginator.Page,
-		q.Paginator.PerPage,
-		q.Paginator.Offset,
-		q.Paginator.TotalEntriesSize,
-		q.Paginator.CurrentEntriesSize,
-		q.Paginator.TotalPages,
-	}
-
-	return c.Render(200, r.JSON(result))
+	return c.Render(200, r.JSON(recruiters))
 }
 
 // RecruitersShow gets the data for one Recruiter. This function is mapped to
@@ -232,8 +207,7 @@ func RecruitersInvite(c buffalo.Context) error {
 	}
 
 	SendSms(
-		// "+1"+recruiter.PhoneNo,
-		"+918951094299",
+		"+1"+recruiter.PhoneNo,
 		os.Getenv("TWILIO_NO"),
 		"Hello "+recruiter.Name+", you've been invited. Please click on "+iParams.URL+"/"+recruiter.ID.String(),
 	)
