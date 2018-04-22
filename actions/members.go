@@ -269,7 +269,8 @@ func MembersUpload(c buffalo.Context) error {
 	// transaction must be committed so that the newly created data is persisted in the
 	// DB when it's queried through the worker
 	tx.TX.Commit()
-	geoCodeAddress(memberIDs)
+	// Temporarily disabled geo-coding
+	// geoCodeAddress(memberIDs)
 	return c.Render(201, r.JSON("data processing complete"))
 }
 
