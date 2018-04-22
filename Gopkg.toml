@@ -79,3 +79,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/mc2soft/pq-types"
+
+[[constraint]]
+  name = "github.com/dgrijalva/jwt-go"
+  version = "3.2.0"

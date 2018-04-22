@@ -13,6 +13,7 @@ import (
 	uuid "github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"github.com/wung-s/gotv/models"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 )
 
@@ -29,13 +30,18 @@ import (
 // View Template Folder: Plural (/templates/users/)
 
 type UserParams struct {
-	AuthID  uuid.UUID  `json:"authId" db:"auth_id"`
+	// AuthID  uuid.UUID  `json:"authId" db:"auth_id"`
 	RoleID  uuid.UUID  `json:"roleId" db:"role_id"`
 	Email   string     `json:"email" db:"email"`
 	PollID  nulls.UUID `json:"pollId" db:"poll_id"`
 	PhoneNo string     `json:"phoneNo" db:"phone_no"`
 	Invited nulls.Bool `json:"invited" db:"invited"`
 	Pw      string     `json:"pw" db:"-"`
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
 }
 
 // UsersShow gets the data for one User. This function is mapped to
@@ -183,14 +189,16 @@ func UsersCreate(c buffalo.Context) error {
 	}
 
 	user.Email = userParams.Email
+	user.Password, _ = HashPassword(userParams.Pw)
 
-	fbUserID, err := CreateFbUser(user.Email, userParams.Pw)
-	if err != nil {
-		fmt.Println(err)
-		return errors.WithStack(err)
-	}
+	// fbUserID, err := CreateFbUser(user.Email, userParams.Pw)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return errors.WithStack(err)
+	// }
 
-	user.AuthID = fbUserID
+	// user.AuthID = fbUserID
+	// user.AuthID = "sample"
 
 	// Validate the data from the html form
 	verrs, err := tx.ValidateAndCreate(user)

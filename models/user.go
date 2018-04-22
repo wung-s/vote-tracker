@@ -13,14 +13,15 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID  `json:"id" db:"id"`
-	CreatedAt time.Time  `json:"createdAt" db:"created_at"`
-	UpdatedAt time.Time  `json:"updatedAt" db:"updated_at"`
-	AuthID    string     `json:"authId" db:"auth_id"`
-	Email     string     `json:"email" db:"email"`
-	PhoneNo   string     `json:"phoneNo" db:"phone_no"`
-	PollID    nulls.UUID `json:"pollId" db:"poll_id"`
-	Invited   nulls.Bool `json:"invited" db:"invited"`
+	ID        uuid.UUID `json:"id" db:"id"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
+	// AuthID    string     `json:"authId" db:"auth_id"`
+	Email    string     `json:"email" db:"email"`
+	PhoneNo  string     `json:"phoneNo" db:"phone_no"`
+	Password string     `json:"password" db:"password"`
+	PollID   nulls.UUID `json:"pollId" db:"poll_id"`
+	Invited  nulls.Bool `json:"invited" db:"invited"`
 }
 
 // DeleteAllRoles removes all associated roles of a user
@@ -64,7 +65,7 @@ func (u Users) String() string {
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: u.Email, Name: "Email"},
-		&validators.StringIsPresent{Field: u.AuthID, Name: "AuthID"},
+		&validators.StringIsPresent{Field: u.Password, Name: "Password"},
 	), nil
 }
 

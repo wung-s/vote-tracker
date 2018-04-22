@@ -49,7 +49,7 @@ var _ = grift.Namespace("db", func() {
 			if err != nil {
 				log.Fatalf("error authenticating Firebase: %v\n", err)
 			} else {
-				deleteFirebaseUsers(ctx, client)
+				// deleteFirebaseUsers(ctx, client)
 				addRolesAndMasterUser(ctx, client)
 			}
 		}
@@ -87,12 +87,12 @@ func addRolesAndMasterUser(ctx context.Context, client *auth.Client) {
 }
 
 func addUser(ctx context.Context, client *auth.Client, email string, pw string, role string) {
-	uuid, _ := actions.CreateFbUser(email, pw)
-
+	// uuid, _ := actions.CreateFbUser(email, pw)
 	u := &models.User{
-		Email:  email,
-		AuthID: uuid,
+		Email: email,
 	}
+
+	u.Password, _ = actions.HashPassword(pw)
 
 	if err := models.DB.Create(u); err != nil {
 		fmt.Println("could not add role:", err)

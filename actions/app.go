@@ -66,11 +66,13 @@ func App() *buffalo.App {
 		tx := middleware.PopTransaction(models.DB)
 
 		app.Use(tx)
-		app.Use(Authenticate)
+		// app.Use(Authenticate)
+		app.Use(RestrictedHandlerMiddleware)
 
-		app.Middleware.Skip(Authenticate, HomeHandler)
-		app.Middleware.Skip(Authenticate, RecruitersMembersSearch)
-		app.Middleware.Skip(Authenticate, RecruitersShow)
+		app.Middleware.Skip(RestrictedHandlerMiddleware, HomeHandler)
+		app.Middleware.Skip(RestrictedHandlerMiddleware, LoginHandler)
+		app.Middleware.Skip(RestrictedHandlerMiddleware, RecruitersMembersSearch)
+		app.Middleware.Skip(RestrictedHandlerMiddleware, RecruitersShow)
 		app.Middleware.Skip(tx, MembersUpload)
 		// Set the request content type to JSON
 		app.Use(middleware.SetContentType("application/json"))
@@ -80,6 +82,7 @@ func App() *buffalo.App {
 		}
 
 		app.GET("/", HomeHandler)
+		app.POST("/login", LoginHandler)
 
 		app.GET("/members", MembersList)
 		app.PUT("/members/{id}", MembersUpdate)
@@ -90,6 +93,7 @@ func App() *buffalo.App {
 		app.GET("/users", UsersList)
 		app.PUT("/users/{id}", UsersUpdate)
 		app.GET("/users/current", UsersCurrent)
+		// app.POST("/signup", UsersSignUp)
 
 		app.GET("/roles", RolesList)
 

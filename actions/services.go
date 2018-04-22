@@ -18,6 +18,20 @@ import (
 var FirebaseApp *firebase.App
 var gMap *maps.Client
 
+// func InitializeJWT() {
+
+// 	box := packr.NewBox("../config")
+
+// 	content := box.Bytes(os.Getenv("JWT_KEY_PATH"))
+
+// 	fileName := os.Getenv("JWT_KEY_PATH")
+// 	if err := ioutil.WriteFile(fileName, content, 0644); err != nil {
+// 		fmt.Println("Error writing jwt sign file:", err)
+// 	}
+// 	fmt.Println("JWT file written")
+
+// }
+
 // InitializeFirebase set up firebase
 func InitializeFirebase() error {
 	err := errors.New("Placeholder error")

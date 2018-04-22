@@ -20,6 +20,12 @@
   version = "v2.6.0"
 
 [[projects]]
+  name = "github.com/BurntSushi/toml"
+  packages = ["."]
+  revision = "b26d9c308763d68093482582cea63d69be07a0f0"
+  version = "v0.3.0"
+
+[[projects]]
   name = "github.com/ajg/form"
   packages = ["."]
   revision = "cc2954064ec9ea8d93917f0f87456e11d7b881ad"
@@ -42,6 +48,12 @@
   packages = ["."]
   revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
   version = "1.0.0"
+
+[[projects]]
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
 
 [[projects]]
   branch = "master"
@@ -68,12 +80,6 @@
   version = "v1.4.7"
 
 [[projects]]
-  name = "github.com/garyburd/redigo"
-  packages = ["internal","redis"]
-  revision = "a69d19351219b6dd56f274f96d85a7014a2ec34e"
-  version = "v1.6.0"
-
-[[projects]]
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
   revision = "a0583e0143b1624142adab07e0e97fe106d99561"
@@ -81,7 +87,7 @@
 
 [[projects]]
   name = "github.com/gobuffalo/buffalo"
-  packages = [".","binding","middleware","middleware/csrf","middleware/ssl","render","worker"]
+  packages = [".","binding","middleware","middleware/csrf","middleware/ssl","middleware/tokenauth","render","worker"]
   revision = "932f95b2b4b7821a1b8369bd64845225ab1117b3"
   version = "v0.11.0"
 
@@ -90,12 +96,6 @@
   packages = ["."]
   revision = "15f5083a6e269f8698715b13dd25f0538754ab37"
   version = "v1.4.1"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/gobuffalo/gocraft-work-adapter"
-  packages = ["."]
-  revision = "98605cefad888b84d5eab31ebcefa94d85665b6b"
 
 [[projects]]
   name = "github.com/gobuffalo/packr"
@@ -116,10 +116,10 @@
   version = "v4.0.5"
 
 [[projects]]
+  branch = "master"
   name = "github.com/gobuffalo/suite"
-  packages = ["."]
-  revision = "1390f9a650cdb0e23499c23c50e75bf98a21f728"
-  version = "v2.0.0"
+  packages = [".","fix"]
+  revision = "f1fb25a0f3f9b5b1c91006a71180db71ff42bcf8"
 
 [[projects]]
   name = "github.com/gobuffalo/tags"
@@ -144,12 +144,6 @@
   name = "github.com/gobuffalo/x"
   packages = ["httpx","sessions"]
   revision = "11ca13c05abd73167c56ed10f8874c7c7497f759"
-
-[[projects]]
-  name = "github.com/gocraft/work"
-  packages = ["."]
-  revision = "67c8dc210ce647e8d8a4206c7f5856ea2390f290"
-  version = "v0.5.0"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -312,12 +306,6 @@
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
-
-[[projects]]
-  name = "github.com/robfig/cron"
-  packages = ["."]
-  revision = "b024fc5ea0e34bc3f83d9941c8d60b0622bfaca4"
-  version = "v1"
 
 [[projects]]
   name = "github.com/rs/cors"
@@ -502,6 +490,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "25a1801efaef61a055e1e4d2083e8af13d142653c8ceabcbe8a063d0bf911c97"
+  inputs-digest = "b26236efa0c20a728ff27b9f152b3ce3fe52bf9e1935013de601aeb200c2c920"
   solver-name = "gps-cdcl"
   solver-version = 1
