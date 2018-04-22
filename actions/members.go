@@ -253,9 +253,12 @@ func MembersUpload(c buffalo.Context) error {
 		} else {
 			setRecruiterID(rPhone, member, tx)
 		}
-
+		member.City = "Brampton"
+		member.State = "Ontario"
+		member.PostalCode = "M 32"
 		if i != 0 {
 			id, err := insertMember(member, tx)
+			fmt.Println("memberID ::::", id)
 			if err != nil {
 				return errors.WithStack(err)
 			}
@@ -264,6 +267,8 @@ func MembersUpload(c buffalo.Context) error {
 		}
 		i++
 	}
+
+	fmt.Printf("memberIDs", memberIDs)
 
 	os.Remove(fileName)
 	// transaction must be committed so that the newly created data is persisted in the
@@ -348,7 +353,7 @@ func insertMember(member *models.Member, tx *pop.Connection) (uuid.UUID, error) 
 	member.ID = uuid.UUID{}
 
 	if err != nil {
-		fmt.Print(verrs)
+		fmt.Print("Error creating member", verrs)
 	}
 
 	return id, err
