@@ -1,19 +1,15 @@
 package actions
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/packr"
-	"github.com/pkg/errors"
 	"github.com/wung-s/gotv/models"
-	"golang.org/x/net/context"
 )
 
 func oneWeek() time.Duration {
@@ -55,35 +51,6 @@ func RestrictedHandlerMiddleware(next buffalo.Handler) buffalo.Handler {
 }
 
 // Authenticate will ensure only authenticated users gain access to protected endpoints
-func Authenticate(next buffalo.Handler) buffalo.Handler {
-	return func(c buffalo.Context) error {
-		// do some work before calling the next handler
-		client, err := FirebaseApp.Auth(context.Background())
-
-		idToken := c.Request().Header.Get("Authorization")
-		idToken = strings.Replace(idToken, `bearer `, "", 1)
-		if ENV == "development" || ENV == "test" {
-			fmt.Println("Authorization", idToken)
-		}
-		token, err := client.VerifyIDToken(idToken)
-		if err != nil {
-			fmt.Printf("error verifying ID token: %v\n", err)
-			response := Response{
-				Message: "Missing or invalid token.",
-			}
-			c.Response().WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(c.Response()).Encode(response)
-			return err
-		}
-
-		if err := setCurrentUser(token.UID, c); err != nil {
-			return errors.WithStack(err)
-		}
-		err = next(c)
-		return err
-	}
-}
-
 func setCurrentUser(uid string, c buffalo.Context) error {
 	tx := models.DB
 	user := &models.User{}

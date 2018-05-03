@@ -6,11 +6,9 @@ import (
 	"log"
 	"os"
 
-	"firebase.google.com/go/auth"
 	"github.com/markbates/grift/grift"
 	"github.com/wung-s/gotv/actions"
 	"github.com/wung-s/gotv/models"
-	"google.golang.org/api/iterator"
 )
 
 var masterUserEmail = os.Getenv("MASTER_USER_EMAIL")
@@ -21,12 +19,7 @@ var _ = grift.Namespace("db", func() {
 	grift.Add("seed", func(c *grift.Context) error {
 		// Add DB seeding stuff here
 		ctx := context.Background()
-		client, err := actions.FirebaseApp.Auth(ctx)
-		if err != nil {
-			log.Fatalf("error authenticating Firebase: %v\n", err)
-		} else {
-			addRolesAndMasterUser(ctx, client)
-		}
+		addRolesAndMasterUser(ctx)
 
 		return nil
 	})
@@ -45,49 +38,21 @@ var _ = grift.Namespace("db", func() {
 			log.Println("tables truncated successfully")
 
 			ctx := context.Background()
-			client, err := actions.FirebaseApp.Auth(ctx)
-			if err != nil {
-				log.Fatalf("error authenticating Firebase: %v\n", err)
-			} else {
-				// deleteFirebaseUsers(ctx, client)
-				addRolesAndMasterUser(ctx, client)
-			}
+			addRolesAndMasterUser(ctx)
 		}
 		return nil
 	})
 })
 
-func deleteFirebaseUsers(ctx context.Context, client *auth.Client) {
-	// Behind the scenes, the Users() iterator will retrive 1000 Users at a time through the API
-	iter := client.Users(ctx, "")
-	for {
-		user, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-
-		if err != nil {
-			log.Fatalf("error listing users: %s\n", err)
-		} else {
-			err = client.DeleteUser(ctx, user.UID)
-			if err != nil {
-				log.Fatalf("error deleting user: %v\n", err)
-			}
-			log.Printf("Successfully deleted user: %s\n", user.UID)
-		}
-	}
-}
-
-func addRolesAndMasterUser(ctx context.Context, client *auth.Client) {
+func addRolesAndMasterUser(ctx context.Context) {
 	addRole("captain")
 	addRole("scrutineer")
 	addRole("manager")
 
-	addUser(ctx, client, masterUserEmail, masterUserPw, "manager")
+	addUser(ctx, masterUserEmail, masterUserPw, "manager")
 }
 
-func addUser(ctx context.Context, client *auth.Client, email string, pw string, role string) {
-	// uuid, _ := actions.CreateFbUser(email, pw)
+func addUser(ctx context.Context, email string, pw string, role string) {
 	u := &models.User{
 		Email: email,
 	}

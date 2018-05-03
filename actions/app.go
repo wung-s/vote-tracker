@@ -57,7 +57,6 @@ func App() *buffalo.App {
 			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 		}))
 
-		InitializeFirebase()
 		InitializeGoogleMaps()
 
 		// Wraps each request in a transaction.
