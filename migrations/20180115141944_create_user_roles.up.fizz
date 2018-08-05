@@ -1,2 +1,2 @@
-raw("CREATE TABLE user_roles (id uuid PRIMARY KEY, user_id uuid REFERENCES users NOT NULL, role_id uuid REFERENCES roles NOT NULL);")
+sql("CREATE TABLE user_roles (id uuid PRIMARY KEY, user_id uuid REFERENCES users NOT NULL, role_id uuid REFERENCES roles NOT NULL);")
 add_index("user_roles", ["user_id", "role_id"], {"unique": true})

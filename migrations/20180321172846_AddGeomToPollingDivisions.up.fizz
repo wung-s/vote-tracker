@@ -1,1 +1,1 @@
-raw("ALTER TABLE polling_divisions ADD COLUMN geom geometry(GEOMETRY, 4326) NOT NULL;")
+sql("ALTER TABLE polling_divisions ADD COLUMN geom geometry(GEOMETRY, 4326) NOT NULL;")

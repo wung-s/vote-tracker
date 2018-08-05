@@ -1,1 +1,1 @@
-raw("drop view members_view;")
+sql("drop view members_view;")

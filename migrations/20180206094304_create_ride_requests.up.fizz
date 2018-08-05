@@ -3,4 +3,4 @@ create_table("ride_requests", func(t) {
 	t.Column("address", "text", {"default": "" })
 })
 
-raw("ALTER TABLE ride_requests ADD COLUMN member_id uuid REFERENCES members NOT NULL;")
+sql("ALTER TABLE ride_requests ADD COLUMN member_id uuid REFERENCES members NOT NULL;")

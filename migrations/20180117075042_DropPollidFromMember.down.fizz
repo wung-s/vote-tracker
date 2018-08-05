@@ -1,1 +1,1 @@
-raw("ALTER TABLE members ADD COLUMN pollid integer")
+sql("ALTER TABLE members ADD COLUMN pollid integer")

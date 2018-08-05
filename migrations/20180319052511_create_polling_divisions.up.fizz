@@ -7,5 +7,5 @@ create_table("polling_divisions", func(t) {
 drop_column("polling_divisions", "created_at")
 drop_column("polling_divisions", "updated_at")
 
-raw("ALTER TABLE polling_divisions ADD COLUMN shape_area numeric;")
-raw("ALTER TABLE polling_divisions ADD COLUMN shape_length numeric;")
+sql("ALTER TABLE polling_divisions ADD COLUMN shape_area numeric;")
+sql("ALTER TABLE polling_divisions ADD COLUMN shape_length numeric;")

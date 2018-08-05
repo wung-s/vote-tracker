@@ -1,1 +1,1 @@
-raw("CREATE VIEW members_view AS SELECT *, concat_ws(' ', unit_number::text, street_number::text, street_name::text) AS address FROM members;")
+sql("CREATE VIEW members_view AS SELECT *, concat_ws(' ', unit_number::text, street_number::text, street_name::text) AS address FROM members;")

@@ -1,2 +1,2 @@
-raw("drop view members_view;")
-raw("CREATE VIEW members_view AS SELECT *, concat_ws(' ', first_name::text, last_name::text) AS full_name, concat_ws(' ', unit_number::text, street_number::text, street_name::text) AS address FROM members;")
+sql("drop view members_view;")
+sql("CREATE VIEW members_view AS SELECT *, concat_ws(' ', first_name::text, last_name::text) AS full_name, concat_ws(' ', unit_number::text, street_number::text, street_name::text) AS address FROM members;")

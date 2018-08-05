@@ -18,8 +18,8 @@ Note: A `manager` user will be created through this task
 
 ### Import Electoral District and Polling Division
 
-* manually import `electoral_districts.csv` directly into electoral_districts table
-* manually import `polling_divisions.csv` directly into polling_divisions table
+- manually import `electoral_districts.csv` directly into electoral_districts table
+- manually import `polling_divisions.csv` directly into polling_divisions table
 
 Note: both the files are stored in AmazonS3 > rallychq
 
@@ -50,7 +50,6 @@ If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you 
     $ heroku config:set TWILIO_AC_SID=AC23a19xxxxxxxxxxb60783eccfa4c2
     $ heroku config:set TWILIO_AUTH_TOKEN=f57fbe7303e5dxxxxxxx4eafbf6796
     $ heroku config:set TWILIO_NO=+0123456789
-    $ heroku config:set FB_SERVICE_AC_KEY=serviceAccountKey.json
     $ heroku config:set GOOGLE_MAPS_KEY=xxxxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxx
     $ heroku config:set MASTER_USER_EMAIL=test1@test.com
     $ heroku config:set MASTER_USER_PW=ffffff
@@ -66,6 +65,7 @@ If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you 
 
     $ heroku container:login
     $ heroku container:push web
+    $ heroku container:release web
     $ heroku run /bin/app migrate
     $ heroku run /bin/app  task db:seed
 

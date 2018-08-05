@@ -1,1 +1,1 @@
-raw("ALTER TABLE members ADD COLUMN recruiter_id uuid REFERENCES recruiters NOT NULL;")
+sql("ALTER TABLE members ADD COLUMN recruiter_id uuid REFERENCES recruiters NOT NULL;")

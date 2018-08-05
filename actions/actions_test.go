@@ -3,6 +3,7 @@ package actions
 import (
 	"testing"
 
+	"github.com/gobuffalo/packr"
 	"github.com/gobuffalo/suite"
 	"github.com/wung-s/gotv/models"
 )
@@ -12,12 +13,19 @@ type ActionSuite struct {
 }
 
 func Test_ActionSuite(t *testing.T) {
-	as := &ActionSuite{suite.NewAction(App())}
+	action, err := suite.NewActionWithFixtures(App(), packr.NewBox("../fixtures"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	as := &ActionSuite{
+		Action: action,
+	}
 	suite.Run(t, as)
 }
 
 func (as ActionSuite) createUser() error {
-	u := models.User{AuthID: "JNNIX7PSziRnwTATl0tTQh5rs9G2", Email: "test1@test.com"}
+	u := models.User{Password: "ffffff", Email: "test1@test.com"}
 	return as.DB.Create(&u)
 }
 

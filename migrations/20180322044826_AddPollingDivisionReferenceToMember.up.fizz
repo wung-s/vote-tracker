@@ -1,6 +1,3 @@
-add_column("members", "polling_division_id", "uuid", {"null": true})
-add_foreign_key("members", "polling_division_id", {"polling_divisions": ["id"]}, {
-    "on_delete": "SET NULL",
-})
+sql("ALTER TABLE members ADD COLUMN polling_division_id uuid REFERENCES polls NULL;")
 
 add_index("members", "polling_division_id", {})
