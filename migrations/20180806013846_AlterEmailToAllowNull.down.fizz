@@ -1,0 +1,1 @@
+change_column("users", "email", "string", {"null": false})

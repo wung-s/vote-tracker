@@ -11,7 +11,7 @@ import (
 	"github.com/wung-s/gotv/models"
 )
 
-var masterUserEmail = os.Getenv("MASTER_USER_EMAIL")
+var masterUserName = os.Getenv("MASTER_USER_NAME")
 var masterUserPw = os.Getenv("MASTER_USER_PW")
 var _ = grift.Namespace("db", func() {
 
@@ -48,13 +48,14 @@ func addRolesAndMasterUser(ctx context.Context) {
 	addRole("captain")
 	addRole("scrutineer")
 	addRole("manager")
+	addRole("recruiter")
 
-	addUser(ctx, masterUserEmail, masterUserPw, "manager")
+	addUser(ctx, masterUserName, masterUserPw, "manager")
 }
 
-func addUser(ctx context.Context, email string, pw string, role string) {
+func addUser(ctx context.Context, userName string, pw string, role string) {
 	u := &models.User{
-		Email: email,
+		UserName: userName,
 	}
 
 	u.Password, _ = actions.HashPassword(pw)

@@ -25,7 +25,7 @@ func Test_ActionSuite(t *testing.T) {
 }
 
 func (as ActionSuite) createUser() error {
-	u := models.User{Password: "ffffff", Email: "test1@test.com"}
+	u := models.User{Password: "ffffff", UserName: "test1@test.com"}
 	return as.DB.Create(&u)
 }
 

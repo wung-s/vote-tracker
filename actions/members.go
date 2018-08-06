@@ -253,9 +253,7 @@ func MembersUpload(c buffalo.Context) error {
 		} else {
 			setRecruiterID(rPhone, member, tx)
 		}
-		member.City = "Brampton"
-		member.State = "Ontario"
-		member.PostalCode = "M 32"
+
 		if i != 0 {
 			id, err := insertMember(member, tx)
 			fmt.Println("memberID ::::", id)

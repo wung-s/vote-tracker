@@ -17,7 +17,8 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
 	// AuthID    string     `json:"authId" db:"auth_id"`
-	Email    string     `json:"email" db:"email"`
+	// Email    string     `json:"email" db:"email"`
+	UserName string     `json:"userName" db:"user_name"`
 	PhoneNo  string     `json:"phoneNo" db:"phone_no"`
 	Password string     `json:"password" db:"password"`
 	PollID   nulls.UUID `json:"pollId" db:"poll_id"`
@@ -64,7 +65,7 @@ func (u Users) String() string {
 // This method is not required and may be deleted.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: u.Email, Name: "Email"},
+		&validators.StringIsPresent{Field: u.UserName, Name: "Username"},
 		&validators.StringIsPresent{Field: u.Password, Name: "Password"},
 	), nil
 }

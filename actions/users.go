@@ -27,12 +27,12 @@ import (
 
 type UserParams struct {
 	// AuthID  uuid.UUID  `json:"authId" db:"auth_id"`
-	RoleID  uuid.UUID  `json:"roleId" db:"role_id"`
-	Email   string     `json:"email" db:"email"`
-	PollID  nulls.UUID `json:"pollId" db:"poll_id"`
-	PhoneNo string     `json:"phoneNo" db:"phone_no"`
-	Invited nulls.Bool `json:"invited" db:"invited"`
-	Pw      string     `json:"pw" db:"-"`
+	RoleID   uuid.UUID  `json:"roleId" db:"role_id"`
+	UserName string     `json:"userName" db:"user_name"`
+	PollID   nulls.UUID `json:"pollId" db:"poll_id"`
+	PhoneNo  string     `json:"phoneNo" db:"phone_no"`
+	Invited  nulls.Bool `json:"invited" db:"invited"`
+	Pw       string     `json:"pw" db:"-"`
 }
 
 func HashPassword(password string) (string, error) {
@@ -184,7 +184,7 @@ func UsersCreate(c buffalo.Context) error {
 		user.PhoneNo = userParams.PhoneNo
 	}
 
-	user.Email = userParams.Email
+	user.UserName = userParams.UserName
 	user.Password, _ = HashPassword(userParams.Pw)
 
 	// Validate the data from the html form
@@ -281,7 +281,7 @@ func UsersUpdate(c buffalo.Context) error {
 		err := SendSms(
 			user.PhoneNo,
 			os.Getenv("TWILIO_NO"),
-			"Hello "+user.Email+", you've been invited")
+			"Hello "+user.UserName+", you've been invited")
 
 		if err != nil {
 			return errors.WithStack(err)

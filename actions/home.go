@@ -18,8 +18,8 @@ import (
 // a home page.
 
 type LoginParams struct {
-	Email string `json:"email" db:"-"`
-	Pw    string `json:"pw" db:"-"`
+	UserName string `json:"userName" db:"-"`
+	Pw       string `json:"pw" db:"-"`
 }
 
 func checkPasswordHash(password, hash string) bool {
@@ -43,7 +43,7 @@ func LoginHandler(c buffalo.Context) error {
 	}
 
 	user := &models.User{}
-	err := tx.Where("email = ?", params.Email).First(user)
+	err := tx.Where("user_name = ?", params.UserName).First(user)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -67,6 +67,6 @@ func LoginHandler(c buffalo.Context) error {
 		return c.Render(200, r.JSON(map[string]string{"token": tokenString}))
 	}
 
-	return c.Render(401, r.JSON(map[string]string{"message": "Email/password mismatch"}))
+	return c.Render(401, r.JSON(map[string]string{"message": "Username/password mismatch"}))
 
 }
