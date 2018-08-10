@@ -53,6 +53,7 @@ If you point your browser to [http://127.0.0.1:4000](http://127.0.0.1:4000) you 
     $ heroku config:set GOOGLE_MAPS_KEY=xxxxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxx
     $ heroku config:set MASTER_USER_NAME=test1@test.com
     $ heroku config:set MASTER_USER_PW=ffffff
+    $ heroku config:set RECRUITER_DEFAULT_PW=ffffff
     $ heroku config:set JWT_SIGN_KEY=jwt_sign_key
 
 ### Enable [Postgis](https://postgis.net/install/)

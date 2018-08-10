@@ -215,9 +215,9 @@ CREATE TABLE members (
     supporter boolean DEFAULT false NOT NULL,
     voted boolean DEFAULT false NOT NULL,
     recruiter character varying(255) DEFAULT ''::character varying NOT NULL,
-    recruiter_id uuid NOT NULL,
     latlng geometry(Point,4326),
-    polling_division_id uuid
+    polling_division_id uuid,
+    recruiter_id uuid
 );
 
 
@@ -247,9 +247,9 @@ CREATE VIEW members_view AS
     members.supporter,
     members.voted,
     members.recruiter,
-    members.recruiter_id,
     members.latlng,
     members.polling_division_id,
+    members.recruiter_id,
     concat_ws(' '::text, (members.first_name)::text, (members.last_name)::text) AS full_name,
     concat_ws(' '::text, (members.unit_number)::text, (members.street_number)::text, (members.street_name)::text) AS address
    FROM members;
@@ -370,7 +370,8 @@ CREATE TABLE users (
     poll_id uuid,
     invited boolean,
     password character varying(255) DEFAULT ''::character varying NOT NULL,
-    user_name character varying(255) NOT NULL
+    user_name character varying(255) NOT NULL,
+    name character varying(255)
 );
 
 
@@ -548,7 +549,7 @@ ALTER TABLE ONLY members
 --
 
 ALTER TABLE ONLY members
-    ADD CONSTRAINT members_recruiter_id_fkey FOREIGN KEY (recruiter_id) REFERENCES recruiters(id);
+    ADD CONSTRAINT members_recruiter_id_fkey FOREIGN KEY (recruiter_id) REFERENCES users(id) ON DELETE SET NULL;
 
 
 --

@@ -14,6 +14,7 @@ import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/worker"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/nulls"
 	uuid "github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"github.com/sfreiberg/gotwilio"
@@ -179,6 +180,11 @@ func MembersUpload(c buffalo.Context) error {
 	memberIDs := []uuid.UUID{}
 	fileHeaders := []string{}
 
+	rs := &models.Role{}
+	if err := tx.Where("name = ?", "recruiter").First(rs); err != nil {
+		fmt.Println("role NOT found", err)
+	}
+
 	for {
 		line, error := reader.Read()
 		if error == io.EOF {
@@ -206,7 +212,6 @@ func MembersUpload(c buffalo.Context) error {
 				} else {
 					rowData[v] = strings.TrimSpace(line[k])
 				}
-
 			}
 		}
 
@@ -223,12 +228,15 @@ func MembersUpload(c buffalo.Context) error {
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		poll := &models.Poll{}
+
 		if !exist {
-			poll.Name = pollName
+			poll := &models.Poll{
+				Name: pollName,
+			}
+
 			if i != 0 {
 				insertPoll(poll, tx)
-				setPollID(pollName, member, tx)
+				setPollID(poll.Name, member, tx)
 			}
 
 		} else {
@@ -237,16 +245,22 @@ func MembersUpload(c buffalo.Context) error {
 
 		rPhone := strings.TrimSpace(rowData["recruiter_phone"])
 		rName := strings.TrimSpace(rowData["recruiter"])
-		exist, err = tx.Where("phone_no = ?", rPhone).Exists("recruiters")
+		exist, err = tx.Where("user_name = ?", rPhone).Exists("users")
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		r := &models.Recruiter{}
+
 		if !exist {
-			r.PhoneNo = rPhone
-			r.Name = rName
+			password, _ := HashPassword(os.Getenv("RECRUITER_DEFAULT_PW"))
+			r := &models.User{
+				Password: password,
+				PhoneNo:  rPhone,
+				Name:     nulls.NewString(rName),
+				UserName: rPhone,
+			}
+
 			if i != 0 {
-				insertRecruiter(r, tx)
+				insertRecruiter(r, tx, rs.ID)
 				setRecruiterID(rPhone, member, tx)
 			}
 
@@ -256,8 +270,8 @@ func MembersUpload(c buffalo.Context) error {
 
 		if i != 0 {
 			id, err := insertMember(member, tx)
-			fmt.Println("memberID ::::", id)
 			if err != nil {
+				fmt.Println("error inserting member", err)
 				return errors.WithStack(err)
 			}
 
@@ -309,22 +323,22 @@ func geoCodeAddress(memberIDs []uuid.UUID) {
 }
 
 func setPollID(pollName string, member *models.Member, tx *pop.Connection) {
-	polls := []models.Poll{}
-	err := tx.Where("name = ?", pollName).All(&polls)
+	poll := models.Poll{}
+	err := tx.Where("name = ?", pollName).First(&poll)
 	if err != nil {
-		fmt.Print(err)
+		fmt.Print("Error retrieving poll", err)
 	} else {
-		member.PollID = polls[0].ID
+		member.PollID = poll.ID
 	}
 }
 
 func setRecruiterID(p string, member *models.Member, tx *pop.Connection) {
-	rs := []models.Recruiter{}
-	err := tx.Where("phone_no = ?", p).All(&rs)
+	user := []models.User{}
+	err := tx.Where("user_name = ?", p).All(&user)
 	if err != nil {
 		fmt.Print(err)
 	} else {
-		member.RecruiterID = rs[0].ID
+		member.RecruiterID = nulls.NewUUID(user[0].ID)
 	}
 }
 
@@ -332,15 +346,25 @@ func insertPoll(poll *models.Poll, tx *pop.Connection) {
 	verrs, err := tx.ValidateAndSave(poll)
 	poll.ID = uuid.UUID{}
 	if err != nil {
-		fmt.Print(verrs)
+		fmt.Println("Error inserting polls ", err, verrs)
 	}
 }
 
-func insertRecruiter(r *models.Recruiter, tx *pop.Connection) {
-	verrs, err := tx.ValidateAndSave(r)
-	r.ID = uuid.UUID{}
-	if err != nil {
-		fmt.Print(verrs)
+func insertRecruiter(u *models.User, tx *pop.Connection, roleID uuid.UUID) {
+	verrs, err := tx.ValidateAndSave(u)
+	if err != nil || verrs != nil {
+		fmt.Println("Error inserting user", err, verrs)
+	}
+
+	ur := &models.UserRole{
+		UserID: u.ID,
+		RoleID: roleID,
+	}
+
+	u.ID = uuid.UUID{}
+	verrs, err = tx.ValidateAndSave(ur)
+	if err != nil || verrs != nil {
+		fmt.Print(verrs, err)
 	}
 }
 
@@ -350,10 +374,9 @@ func insertMember(member *models.Member, tx *pop.Connection) (uuid.UUID, error) 
 	id := member.ID
 	member.ID = uuid.UUID{}
 
-	if err != nil {
-		fmt.Print("Error creating member", verrs)
+	if err != nil || verrs != nil {
+		fmt.Print("Error creating member ", err, verrs)
 	}
-
 	return id, err
 }
 

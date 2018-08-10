@@ -1,0 +1,1 @@
+drop_foreign_key("members", "members_recruiter_id_fkey", {"if_exists": true})

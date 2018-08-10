@@ -18,11 +18,12 @@ type User struct {
 	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
 	// AuthID    string     `json:"authId" db:"auth_id"`
 	// Email    string     `json:"email" db:"email"`
-	UserName string     `json:"userName" db:"user_name"`
-	PhoneNo  string     `json:"phoneNo" db:"phone_no"`
-	Password string     `json:"password" db:"password"`
-	PollID   nulls.UUID `json:"pollId" db:"poll_id"`
-	Invited  nulls.Bool `json:"invited" db:"invited"`
+	Name     nulls.String `json:"name" db:"name"`
+	UserName string       `json:"userName" db:"user_name"`
+	PhoneNo  string       `json:"phoneNo" db:"phone_no"`
+	Password string       `json:"password" db:"password"`
+	PollID   nulls.UUID   `json:"pollId" db:"poll_id"`
+	Invited  nulls.Bool   `json:"invited" db:"invited"`
 }
 
 // DeleteAllRoles removes all associated roles of a user
