@@ -1,0 +1,1 @@
+add_column("users", "notification_enabled", "bool", {"null": true})

@@ -57,7 +57,40 @@ func UsersShow(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.JSON(user))
+	////////
+	type MemberStats struct {
+		Total     int `json:"total"`
+		Voted     int `json:"voted"`
+		Supporter int `json:"supporter"`
+	}
+
+	votedCnt, err := tx.Where("voted = ? AND recruiter_id = ?", true, user.ID).Count("members")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	supporterCnt, err := tx.Where("supporter = ? AND recruiter_id = ?", true, user.ID).Count("members")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	totalCnt, err := tx.Where("recruiter_id = ?", user.ID).Count("members")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	s := MemberStats{totalCnt, votedCnt, supporterCnt}
+	user.Password = ""
+	result := struct {
+		models.User
+		MemberStatistic MemberStats `json:"memberStatistic"`
+	}{
+		*user,
+		s,
+	}
+
+	return c.Render(200, r.JSON(result))
+
 }
 
 // UsersCurrent will return the authenticated user's information

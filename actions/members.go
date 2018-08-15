@@ -253,10 +253,11 @@ func MembersUpload(c buffalo.Context) error {
 		if !exist {
 			password, _ := HashPassword(os.Getenv("RECRUITER_DEFAULT_PW"))
 			r := &models.User{
-				Password: password,
-				PhoneNo:  rPhone,
-				Name:     nulls.NewString(rName),
-				UserName: rPhone,
+				Password:            password,
+				PhoneNo:             rPhone,
+				Name:                nulls.NewString(rName),
+				UserName:            rPhone,
+				NotificationEnabled: nulls.NewBool(true),
 			}
 
 			if i != 0 {
