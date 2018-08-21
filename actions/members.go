@@ -255,7 +255,7 @@ func MembersUpload(c buffalo.Context) error {
 			r := &models.User{
 				Password:            password,
 				PhoneNo:             rPhone,
-				Name:                nulls.NewString(rName),
+				Name:                rName,
 				UserName:            rPhone,
 				NotificationEnabled: nulls.NewBool(true),
 			}

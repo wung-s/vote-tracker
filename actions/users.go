@@ -323,3 +323,54 @@ func UsersUpdate(c buffalo.Context) error {
 
 	return c.Render(200, r.JSON(user))
 }
+
+func UsersInvite(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Recruiter
+	user := &models.User{}
+
+	if err := tx.Find(user, c.Param("id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	iParams := &InvitationParams{}
+
+	// Bind Recruiter to the html form elements
+	if err := c.Bind(iParams); err != nil {
+		return errors.WithStack(err)
+	}
+	// nulls.
+	if user.NotificationEnabled == nulls.NewBool(false) {
+		msg := struct {
+			Message string `json:"message"`
+		}{
+			"Please enable notification first",
+		}
+
+		return c.Render(301, r.JSON(msg))
+	}
+
+	SendSms(
+		"+1"+user.PhoneNo,
+		os.Getenv("TWILIO_NO"),
+		"Hello "+user.Name+", you've been invited. Please click on "+iParams.URL+"/"+user.ID.String(),
+	)
+
+	user.Invited = nulls.NewBool(true)
+	verrs, err := tx.ValidateAndUpdate(user)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if verrs.HasAny() {
+		// Render errors as JSON
+		return c.Render(400, r.JSON(verrs))
+	}
+
+	return c.Render(200, r.JSON(user))
+}

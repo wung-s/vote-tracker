@@ -371,7 +371,7 @@ CREATE TABLE users (
     invited boolean,
     password character varying(255) DEFAULT ''::character varying NOT NULL,
     user_name character varying(255) NOT NULL,
-    name character varying(255),
+    name character varying(255) DEFAULT ''::character varying NOT NULL,
     notification_enabled boolean
 );
 

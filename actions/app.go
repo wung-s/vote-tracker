@@ -93,6 +93,8 @@ func App() *buffalo.App {
 		app.PUT("/users/{id}", UsersUpdate)
 		app.GET("/users/current", UsersCurrent)
 		app.GET("/users/{user_id}", UsersShow)
+		app.PUT("/recruiters/{id}/invite", UsersInvite)
+
 		// app.POST("/signup", UsersSignUp)
 
 		app.GET("/roles", RolesList)

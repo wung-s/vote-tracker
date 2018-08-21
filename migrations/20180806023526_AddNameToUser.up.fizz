@@ -1,1 +1,1 @@
-add_column("users", "name", "string", {"null": true})
+add_column("users", "name", "string", {"default": ""})

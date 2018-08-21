@@ -17,13 +17,13 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
 	// AuthID    string     `json:"authId" db:"auth_id"`
-	Name                nulls.String `json:"name" db:"name"`
-	UserName            string       `json:"userName" db:"user_name"`
-	PhoneNo             string       `json:"phoneNo" db:"phone_no"`
-	Password            string       `json:"password,omitempty" db:"password"`
-	PollID              nulls.UUID   `json:"pollId" db:"poll_id"`
-	Invited             nulls.Bool   `json:"invited" db:"invited"`
-	NotificationEnabled nulls.Bool   `json:"notificationEnabled" db:"notification_enabled"`
+	Name                string     `json:"name" db:"name"`
+	UserName            string     `json:"userName" db:"user_name"`
+	PhoneNo             string     `json:"phoneNo" db:"phone_no"`
+	Password            string     `json:"password,omitempty" db:"password"`
+	PollID              nulls.UUID `json:"pollId" db:"poll_id"`
+	Invited             nulls.Bool `json:"invited" db:"invited"`
+	NotificationEnabled nulls.Bool `json:"notificationEnabled" db:"notification_enabled"`
 }
 
 // DeleteAllRoles removes all associated roles of a user
