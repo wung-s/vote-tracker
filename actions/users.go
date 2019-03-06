@@ -27,12 +27,14 @@ import (
 
 type UserParams struct {
 	// AuthID  uuid.UUID  `json:"authId" db:"auth_id"`
-	RoleID   uuid.UUID  `json:"roleId" db:"role_id"`
-	UserName string     `json:"userName" db:"user_name"`
-	PollID   nulls.UUID `json:"pollId" db:"poll_id"`
-	PhoneNo  string     `json:"phoneNo" db:"phone_no"`
-	Invited  nulls.Bool `json:"invited" db:"invited"`
-	Pw       string     `json:"pw" db:"-"`
+	RoleID              uuid.UUID  `json:"roleId" db:"role_id"`
+	UserName            string     `json:"userName" db:"user_name"`
+	Name                string     `json:"name" db:"name"`
+	PollID              nulls.UUID `json:"pollId" db:"poll_id"`
+	PhoneNo             string     `json:"phoneNo" db:"phone_no"`
+	Invited             nulls.Bool `json:"invited" db:"invited"`
+	Pw                  string     `json:"pw" db:"-"`
+	NotificationEnabled nulls.Bool `json:notificationEnabled db:"notification_enabled"`
 }
 
 func HashPassword(password string) (string, error) {
@@ -116,7 +118,8 @@ func UsersList(c buffalo.Context) error {
 	q := tx.PaginateFromParams(c.Params())
 
 	// Retrieve all Users from the DB
-	if err := q.All(users); err != nil {
+	// if err := q.Select("id, email, phone_no, poll_id, invited, user_name, name, notification_enabled").All(users); err != nil {
+		if err := q.All(users); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -145,6 +148,7 @@ func UsersList(c buffalo.Context) error {
 			roleNames = append(roleNames, v.Name)
 		}
 
+		u.Password = ""
 		tmp := UserWithRoles{
 			u,
 			roleNames,
@@ -215,6 +219,10 @@ func UsersCreate(c buffalo.Context) error {
 	if role.Name == "captain" {
 		user.PollID = userParams.PollID
 		user.PhoneNo = userParams.PhoneNo
+	}
+
+	if role.Name == "recruiter" {
+		user.NotificationEnabled = userParams.NotificationEnabled
 	}
 
 	user.UserName = userParams.UserName
@@ -302,6 +310,8 @@ func UsersUpdate(c buffalo.Context) error {
 		user.Invited = userParams.Invited
 	}
 
+	user.NotificationEnabled = userParams.NotificationEnabled
+
 	verrs, err := tx.ValidateAndUpdate(user)
 	if err != nil {
 		return errors.WithStack(err)
@@ -311,14 +321,14 @@ func UsersUpdate(c buffalo.Context) error {
 	}
 
 	if userParams.Invited.Bool == true {
-		err := SendSms(
-			user.PhoneNo,
-			os.Getenv("TWILIO_NO"),
-			"Hello "+user.UserName+", you've been invited")
+		// err := SendSms(
+		// 	user.PhoneNo,
+		// 	os.Getenv("TWILIO_NO"),
+		// 	"Hello "+user.UserName+", you've been invited")
 
-		if err != nil {
-			return errors.WithStack(err)
-		}
+		// if err != nil {
+		// 	return errors.WithStack(err)
+		// }
 	}
 
 	return c.Render(200, r.JSON(user))
