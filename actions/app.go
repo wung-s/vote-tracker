@@ -2,9 +2,11 @@ package actions
 
 import (
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/buffalo/middleware"
-	"github.com/gobuffalo/buffalo/middleware/ssl"
+	"github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
+	contenttype "github.com/gobuffalo/mw-contenttype"
+	forcessl "github.com/gobuffalo/mw-forcessl"
+	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/gobuffalo/x/sessions"
 	"github.com/rs/cors"
 	"github.com/unrolled/secure"
@@ -52,7 +54,7 @@ func App() *buffalo.App {
 			// }),
 		})
 		// Automatically redirect to SSL
-		app.Use(ssl.ForceSSL(secure.Options{
+		app.Use(forcessl.Middleware(secure.Options{
 			SSLRedirect:     ENV == "production",
 			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 		}))
@@ -62,7 +64,7 @@ func App() *buffalo.App {
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.PopTransaction)
 		// Remove to disable this.
-		tx := middleware.PopTransaction(models.DB)
+		tx := popmw.Transaction(models.DB)
 
 		app.Use(tx)
 		// app.Use(Authenticate)
@@ -74,10 +76,10 @@ func App() *buffalo.App {
 		app.Middleware.Skip(RestrictedHandlerMiddleware, RecruitersShow)
 		app.Middleware.Skip(tx, MembersUpload)
 		// Set the request content type to JSON
-		app.Use(middleware.SetContentType("application/json"))
+		app.Use(contenttype.Set("application/json"))
 
 		if ENV == "development" {
-			app.Use(middleware.ParameterLogger)
+			app.Use(paramlogger.ParameterLogger)
 		}
 
 		app.GET("/", HomeHandler)

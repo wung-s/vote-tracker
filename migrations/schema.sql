@@ -15,24 +15,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: tiger; Type: SCHEMA; Schema: -; Owner: Wung
---
-
-CREATE SCHEMA tiger;
-
-
-ALTER SCHEMA tiger OWNER TO "Wung";
-
---
--- Name: tiger_data; Type: SCHEMA; Schema: -; Owner: Wung
---
-
-CREATE SCHEMA tiger_data;
-
-
-ALTER SCHEMA tiger_data OWNER TO "Wung";
-
---
 -- Name: topology; Type: SCHEMA; Schema: -; Owner: Wung
 --
 
@@ -56,48 +38,6 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- Name: address_standardizer; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS address_standardizer WITH SCHEMA public;
-
-
---
--- Name: EXTENSION address_standardizer; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION address_standardizer IS 'Used to parse an address into constituent elements. Generally used to support geocoding address normalization step.';
-
-
---
--- Name: address_standardizer_data_us; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS address_standardizer_data_us WITH SCHEMA public;
-
-
---
--- Name: EXTENSION address_standardizer_data_us; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION address_standardizer_data_us IS 'Address Standardizer US dataset example';
-
-
---
--- Name: fuzzystrmatch; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS fuzzystrmatch WITH SCHEMA public;
-
-
---
--- Name: EXTENSION fuzzystrmatch; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance between strings';
-
-
---
 -- Name: postgis; Type: EXTENSION; Schema: -; Owner: 
 --
 
@@ -109,34 +49,6 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
-
-
---
--- Name: postgis_sfcgal; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS postgis_sfcgal WITH SCHEMA public;
-
-
---
--- Name: EXTENSION postgis_sfcgal; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION postgis_sfcgal IS 'PostGIS SFCGAL functions';
-
-
---
--- Name: postgis_tiger_geocoder; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder WITH SCHEMA tiger;
-
-
---
--- Name: EXTENSION postgis_tiger_geocoder; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION postgis_tiger_geocoder IS 'PostGIS tiger geocoder and reverse geocoder';
 
 
 --
@@ -208,13 +120,13 @@ CREATE TABLE members (
     postal_code character varying(255) DEFAULT ''::character varying NOT NULL,
     home_phone character varying(255) DEFAULT ''::character varying NOT NULL,
     cell_phone character varying(255) DEFAULT ''::character varying NOT NULL,
+    recruiter character varying(255) DEFAULT ''::character varying NOT NULL,
     recruiter_phone character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     poll_id uuid NOT NULL,
     supporter boolean DEFAULT false NOT NULL,
     voted boolean DEFAULT false NOT NULL,
-    recruiter character varying(255) DEFAULT ''::character varying NOT NULL,
     recruiter_id uuid NOT NULL,
     latlng geometry(Point,4326),
     polling_division_id uuid
@@ -240,13 +152,13 @@ CREATE VIEW members_view AS
     members.postal_code,
     members.home_phone,
     members.cell_phone,
+    members.recruiter,
     members.recruiter_phone,
     members.created_at,
     members.updated_at,
     members.poll_id,
     members.supporter,
     members.voted,
-    members.recruiter,
     members.recruiter_id,
     members.latlng,
     members.polling_division_id,
@@ -338,7 +250,7 @@ ALTER TABLE roles OWNER TO postgres;
 --
 
 CREATE TABLE schema_migration (
-    version character varying(255) NOT NULL
+    version character varying(14) NOT NULL
 );
 
 
@@ -492,6 +404,13 @@ CREATE INDEX roles_name_idx ON roles USING btree (name);
 
 
 --
+-- Name: schema_migration_version_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX schema_migration_version_idx ON schema_migration USING btree (version);
+
+
+--
 -- Name: user_roles_user_id_role_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -513,13 +432,6 @@ CREATE UNIQUE INDEX users_user_name_idx ON users USING btree (user_name);
 
 
 --
--- Name: version_idx; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE UNIQUE INDEX version_idx ON schema_migration USING btree (version);
-
-
---
 -- Name: dispositions dispositions_member_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -536,11 +448,11 @@ ALTER TABLE ONLY members
 
 
 --
--- Name: members members_polling_divisions_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: members members_polling_division_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY members
-    ADD CONSTRAINT members_polling_divisions_id_fk FOREIGN KEY (polling_division_id) REFERENCES polling_divisions(id) ON DELETE SET NULL;
+    ADD CONSTRAINT members_polling_division_id_fkey FOREIGN KEY (polling_division_id) REFERENCES polls(id);
 
 
 --

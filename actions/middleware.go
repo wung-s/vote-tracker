@@ -8,7 +8,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/packr"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/wung-s/gotv/models"
 )
 
@@ -29,7 +29,7 @@ func RestrictedHandlerMiddleware(next buffalo.Handler) buffalo.Handler {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
 
-			box := packr.NewBox("../config")
+			box := packr.New("../config", "../config")
 			mySignedKey := box.Bytes(os.Getenv("JWT_SIGN_KEY"))
 
 			return mySignedKey, nil

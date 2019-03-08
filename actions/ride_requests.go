@@ -89,10 +89,9 @@ func MemberRideRequestsShow(c buffalo.Context) error {
 	sql, args := q.ToSQL(&pop.Model{Value: models.RideRequest{}}, "ride_requests.*", "members_view.address as alt_address")
 	tx.RawQuery(sql, args...).First(rideRequest)
 
-	if uuid.Equal(uuid.UUID{}, rideRequest.ID) {
-		return c.Render(200, r.JSON(struct{}{}))
-	}
-
+	// if uuid.Equal(uuid.UUID{}, rideRequest.ID) {
+	// 	return c.Render(200, r.JSON(struct{}{}))
+	// }
 	return c.Render(200, r.JSON(rideRequest))
 }
 

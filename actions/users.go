@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -216,6 +217,7 @@ func UsersCreate(c buffalo.Context) error {
 // UsersUpdate changes a User in the DB. This function is mapped to
 // the path PUT /users/{user_id}
 func UsersUpdate(c buffalo.Context) error {
+	fmt.Println("USER UPDATE !!!! ")
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -235,7 +237,11 @@ func UsersUpdate(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if !uuid.Equal(userParams.RoleID, uuid.UUID{}) {
+	fmt.Printf("User Uppdate %+v", userParams)
+
+	nilID := uuid.UUID{}
+
+	if userParams.RoleID.String() != nilID.String() {
 		exist, err := tx.Where("id = ?", userParams.RoleID).Exists("roles")
 		if err != nil {
 			return errors.WithStack(err)
@@ -260,7 +266,7 @@ func UsersUpdate(c buffalo.Context) error {
 	}
 
 	// set PollID if persent
-	if !uuid.Equal(userParams.PollID.UUID, uuid.UUID{}) {
+	if userParams.PollID.UUID.String() != nilID.String() {
 		user.PollID = userParams.PollID
 	}
 

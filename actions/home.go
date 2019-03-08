@@ -7,7 +7,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/packr"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"github.com/wung-s/gotv/models"
@@ -56,7 +56,7 @@ func LoginHandler(c buffalo.Context) error {
 			Id:        user.ID.String(),
 		}
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		box := packr.NewBox("../config")
+		box := packr.New("../config", "../config")
 		signingKey := box.Bytes(os.Getenv("JWT_SIGN_KEY"))
 
 		tokenString, err := token.SignedString(signingKey)
