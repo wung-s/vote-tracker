@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/nulls"
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/pop/nulls"
 	uuid "github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"github.com/wung-s/gotv/models"
@@ -271,9 +271,11 @@ func UsersUpdate(c buffalo.Context) error {
 	}
 
 	// set Invited if persent
-	if v, _ := userParams.Invited.Value(); v != nil {
+	if ok := userParams.Invited.Valid; !ok {
 		user.Invited = userParams.Invited
 	}
+
+	// userParams.Invited.
 
 	verrs, err := tx.ValidateAndUpdate(user)
 	if err != nil {

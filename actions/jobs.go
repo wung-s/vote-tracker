@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/buffalo/worker"
-	"github.com/gobuffalo/pop/nulls"
+	"github.com/gobuffalo/nulls"
 	uuid "github.com/gobuffalo/uuid"
 	pgTypes "github.com/mc2soft/pq-types"
 	"github.com/pkg/errors"

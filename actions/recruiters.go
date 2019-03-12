@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"github.com/wung-s/gotv/models"
 )
@@ -39,10 +40,32 @@ func RecruitersList(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	recruiters := &models.Recruiters{}
+	// recruiters := &models.Recruiters{}
 
+	sql := `SELECT recruiters.id, name, phone_no, invited, notification_enabled, voted, supporter, total FROM recruiters INNER JOIN
+						(select recruiters.id,
+       				count(voted) filter (where voted = true) as voted,
+	   					count(supporter) filter (where supporter = true) as supporter,
+	   					count(recruiter_id) as total
+	   				from public.recruiters LEFT JOIN public.members on members.recruiter_id = recruiters.id
+	   				group by recruiters.id) AS recruiters_stat on recruiters_stat.id = recruiters.id`
+	q := tx.RawQuery(sql)
+	type result struct {
+		ID                  uuid.UUID `json:"id"`
+		Name                string    `json:"name" db:"name"`
+		PhoneNo             string    `json:"phoneNo" db:"phone_no"`
+		Invited             bool      `json:"invited" db:"invited"`
+		NotificationEnabled bool      `json:"notificationEnabled" db:"notification_enabled"`
+		Voted               int       `json:"voted" db:"voted"`
+		Supporter           int       `json:"supporter" db:"supporter"`
+		Total               int       `json:"total" db:"total"`
+	}
+
+	recruiters := []result{}
+
+	// err := q.All(recruiters)
 	// Retrieve all Recruiters from the DB
-	if err := tx.All(recruiters); err != nil {
+	if err := q.All(&recruiters); err != nil {
 		return errors.WithStack(err)
 	}
 

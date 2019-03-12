@@ -61,7 +61,7 @@ func addUser(ctx context.Context, userName string, pw string, role string) {
 	u.Password, _ = actions.HashPassword(pw)
 
 	if err := models.DB.Create(u); err != nil {
-		fmt.Println("could not add role:", err)
+		fmt.Println("could not add user:", err)
 	}
 
 	rs := &models.Role{}
